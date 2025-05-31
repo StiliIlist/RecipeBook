@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Minus, X, AlertTriangle, Users, Clock, ChefHat } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react'; // Import useRef
+import { Plus, Minus, X, AlertTriangle, Users, Clock, ChefHat, Printer } from 'lucide-react'; // Import Printer icon
 
 const RecipeBuilder = () => {
   const [recipe, setRecipe] = useState({
@@ -20,7 +20,10 @@ const RecipeBuilder = () => {
   });
 
   const [scaleFactor, setScaleFactor] = useState(1);
-  const [tagInput, setTagInput] = useState(''); // State for the new tag input
+  const [tagInput, setTagInput] = useState('');
+
+  // Create a ref for the printable area
+  const recipeSummaryRef = useRef(null);
 
   const commonAllergens = [
     'Gluten', 'Dairy', 'Eggs', 'Nuts', 'Peanuts',
@@ -31,13 +34,6 @@ const RecipeBuilder = () => {
     'cups', 'tablespoons', 'teaspoons', 'ounces', 'pounds',
     'grams', 'kilograms', 'milliliters', 'liters', 'pieces', 'cloves'
   ];
-
-  // Effect to re-evaluate scale factor if servings change
-  useEffect(() => {
-    // You might want to reset scaleFactor to 1 or adjust it based on recipe.servings
-    // For now, it just ensures the display updates if servings change
-    // No direct dependency needed if scaleFactor is independently controlled
-  }, [recipe.servings]);
 
   const addIngredient = () => {
     setRecipe(prev => ({
@@ -112,7 +108,6 @@ const RecipeBuilder = () => {
     const num = parseFloat(amount);
     if (isNaN(num)) return amount;
     const scaled = num * scaleFactor;
-    // Round to 2 decimal places and then convert back to number to remove .00 if it's a whole number
     return parseFloat(scaled.toFixed(2));
   };
 
@@ -131,7 +126,7 @@ const RecipeBuilder = () => {
         ...prev,
         tags: [...prev.tags, trimmedTag]
       }));
-      setTagInput(''); // Clear the input field
+      setTagInput('');
     }
   };
 
@@ -142,15 +137,33 @@ const RecipeBuilder = () => {
     }));
   };
 
+  // Function to handle printing
+  const handlePrint = () => {
+    // This will open the browser's print dialog
+    window.print();
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <div className="mb-8">
+      <div className="mb-8 flex justify-between items-center"> {/* Added flex for alignment */}
         <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
           <ChefHat className="text-orange-500" />
           Recipe Builder
         </h1>
-        <p className="text-gray-600">Create detailed recipes with scaling and allergen tracking</p>
+        {/* Print Button */}
+        {recipe.name && ( // Only show print button if there's a recipe name
+          <button
+            onClick={handlePrint}
+            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 flex items-center gap-2"
+            aria-label="Print Recipe"
+          >
+            <Printer size={20} />
+            Print to PDF
+          </button>
+        )}
       </div>
+      <p className="text-gray-600 mb-6">Create detailed recipes with scaling and allergen tracking</p>
+
 
       {/* Recipe Header */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -176,7 +189,7 @@ const RecipeBuilder = () => {
               id="servings"
               type="number"
               value={recipe.servings}
-              onChange={(e) => setRecipe(prev => ({ ...prev, servings: parseInt(e.target.value) || 0 }))} {/* Add || 0 to handle empty string becoming 0 */}
+              onChange={(e) => setRecipe(prev => ({ ...prev, servings: parseInt(e.target.value) || 0 }))}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               min="1"
             />
@@ -270,7 +283,7 @@ const RecipeBuilder = () => {
             >
               <Minus size={16} />
             </button>
-            <span className="text-lg font-medium">{scaleFactor.toFixed(2)}x</span> {/* Display 2 decimal places for scale factor */}
+            <span className="text-lg font-medium">{scaleFactor.toFixed(2)}x</span>
             <button
               onClick={() => setScaleFactor(prev => prev + 0.25)}
               className="p-1 bg-orange-500 text-white rounded hover:bg-orange-600"
@@ -327,7 +340,7 @@ const RecipeBuilder = () => {
                 <input
                   id={`ingredient-amount-${ingredient.id}`}
                   type="number"
-                  step="0.01" // More granular step
+                  step="0.01"
                   value={ingredient.amount}
                   onChange={(e) => updateIngredient(ingredient.id, 'amount', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -418,7 +431,7 @@ const RecipeBuilder = () => {
 
         <div className="space-y-3">
           {recipe.instructions.map((instruction, index) => (
-            <div key={index} className="flex gap-3 items-start"> {/* Add items-start for better alignment */}
+            <div key={index} className="flex gap-3 items-start">
               <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
                 {index + 1}
               </div>
@@ -447,9 +460,9 @@ const RecipeBuilder = () => {
         </div>
       </div>
 
-      {/* Recipe Summary */}
+      {/* Recipe Summary - This is what will be printed */}
       {recipe.name && (
-        <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-lg">
+        <div ref={recipeSummaryRef} className="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-lg">
           <h3 className="text-xl font-bold text-gray-800 mb-3">{recipe.name}</h3>
           {recipe.description && (
             <p className="text-gray-700 mb-4">{recipe.description}</p>
@@ -472,7 +485,7 @@ const RecipeBuilder = () => {
             )}
           </div>
 
-          {/* Scaled Ingredients for Summary (Optional: Add this for a complete summary) */}
+          {/* Scaled Ingredients for Summary */}
           {recipe.ingredients.some(ing => ing.name && ing.amount) && (
             <div className="mt-6">
               <h4 className="text-lg font-semibold text-gray-800 mb-2">Scaled Ingredients:</h4>
@@ -486,7 +499,7 @@ const RecipeBuilder = () => {
             </div>
           )}
 
-          {/* Instructions for Summary (Optional: Add this for a complete summary) */}
+          {/* Instructions for Summary */}
           {recipe.instructions.some(inst => inst.trim() !== '') && (
             <div className="mt-6">
               <h4 className="text-lg font-semibold text-gray-800 mb-2">Instructions:</h4>
