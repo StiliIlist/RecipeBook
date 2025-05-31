@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'; // Import useRef
-import { Plus, Minus, X, AlertTriangle, Users, Clock, ChefHat, Printer } from 'lucide-react'; // Import Printer icon
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Minus, X, AlertTriangle, Users, Clock, ChefHat, Printer } from 'lucide-react';
 
 const RecipeBuilder = () => {
   const [recipe, setRecipe] = useState({
@@ -22,7 +22,7 @@ const RecipeBuilder = () => {
   const [scaleFactor, setScaleFactor] = useState(1);
   const [tagInput, setTagInput] = useState('');
 
-  // Create a ref for the printable area
+  // Ref for the printable area (the recipe summary)
   const recipeSummaryRef = useRef(null);
 
   const commonAllergens = [
@@ -108,6 +108,7 @@ const RecipeBuilder = () => {
     const num = parseFloat(amount);
     if (isNaN(num)) return amount;
     const scaled = num * scaleFactor;
+    // Round to 2 decimal places and then convert back to number to remove .00 if it's a whole number
     return parseFloat(scaled.toFixed(2));
   };
 
@@ -139,19 +140,19 @@ const RecipeBuilder = () => {
 
   // Function to handle printing
   const handlePrint = () => {
-    // This will open the browser's print dialog
+    // This will open the browser's native print dialog
     window.print();
   };
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <div className="mb-8 flex justify-between items-center"> {/* Added flex for alignment */}
+      <div className="mb-8 flex justify-between items-center print-hide"> {/* Added print-hide class */}
         <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
           <ChefHat className="text-orange-500" />
           Recipe Builder
         </h1>
-        {/* Print Button */}
-        {recipe.name && ( // Only show print button if there's a recipe name
+        {/* Print Button - Only show if there's a recipe name */}
+        {recipe.name && (
           <button
             onClick={handlePrint}
             className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 flex items-center gap-2"
@@ -162,11 +163,10 @@ const RecipeBuilder = () => {
           </button>
         )}
       </div>
-      <p className="text-gray-600 mb-6">Create detailed recipes with scaling and allergen tracking</p>
-
+      <p className="text-gray-600 mb-6 print-hide">Create detailed recipes with scaling and allergen tracking</p>
 
       {/* Recipe Header */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 print-hide">
         <div>
           <label htmlFor="recipeName" className="block text-sm font-medium text-gray-700 mb-2">Recipe Name</label>
           <input
@@ -223,7 +223,7 @@ const RecipeBuilder = () => {
       </div>
 
       {/* Description */}
-      <div className="mb-8">
+      <div className="mb-8 print-hide">
         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">Description</label>
         <textarea
           id="description"
@@ -236,7 +236,7 @@ const RecipeBuilder = () => {
       </div>
 
       {/* Tags Section */}
-      <div className="mb-8">
+      <div className="mb-8 print-hide">
         <h3 className="text-xl font-semibold text-gray-800 mb-4">Tags</h3>
         <div className="flex flex-wrap gap-2 mb-3">
           {recipe.tags.map((tag, index) => (
@@ -272,7 +272,7 @@ const RecipeBuilder = () => {
       </div>
 
       {/* Scaling Controls */}
-      <div className="mb-8 p-4 bg-orange-50 rounded-lg">
+      <div className="mb-8 p-4 bg-orange-50 rounded-lg print-hide">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold text-gray-800">Recipe Scaling</h3>
           <div className="flex items-center gap-3">
@@ -299,7 +299,7 @@ const RecipeBuilder = () => {
       </div>
 
       {/* Ingredients Section */}
-      <div className="mb-8">
+      <div className="mb-8 print-hide">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold text-gray-800">Ingredients</h3>
           <button
@@ -417,7 +417,7 @@ const RecipeBuilder = () => {
       </div>
 
       {/* Instructions Section */}
-      <div className="mb-8">
+      <div className="mb-8 print-hide">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold text-gray-800">Instructions</h3>
           <button
@@ -462,11 +462,22 @@ const RecipeBuilder = () => {
 
       {/* Recipe Summary - This is what will be printed */}
       {recipe.name && (
-        <div ref={recipeSummaryRef} className="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-lg">
+        <div ref={recipeSummaryRef} className="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-lg print-only-block"> {/* Added print-only-block */}
           <h3 className="text-xl font-bold text-gray-800 mb-3">{recipe.name}</h3>
           {recipe.description && (
             <p className="text-gray-700 mb-4">{recipe.description}</p>
           )}
+          {recipe.tags.length > 0 && (
+            <div className="mb-4">
+                <span className="font-semibold text-gray-700">Tags: </span>
+                {recipe.tags.map((tag, index) => (
+                    <span key={index} className="inline-block bg-orange-200 text-orange-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                        {tag}
+                    </span>
+                ))}
+            </div>
+          )}
+
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="flex items-center gap-2">
@@ -519,4 +530,3 @@ const RecipeBuilder = () => {
 };
 
 export default RecipeBuilder;
-          "Add calculator"
