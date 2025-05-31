@@ -19,18 +19,11 @@ const RecipeBuilder = () => {
     tags: []
   });
 
-  const [newIngredient, setNewIngredient] = useState({
-    name: '',
-    amount: '',
-    preparation: '',
-    unit: 'cups',
-    allergens: []
-  });
-
   const [scaleFactor, setScaleFactor] = useState(1);
+  const [tagInput, setTagInput] = useState(''); // State for the new tag input
 
   const commonAllergens = [
-    'Gluten', 'Dairy', 'Eggs', 'Nuts', 'Peanuts', 
+    'Gluten', 'Dairy', 'Eggs', 'Nuts', 'Peanuts',
     'Soy', 'Fish', 'Shellfish', 'Sesame'
   ];
 
@@ -39,16 +32,23 @@ const RecipeBuilder = () => {
     'grams', 'kilograms', 'milliliters', 'liters', 'pieces', 'cloves'
   ];
 
+  // Effect to re-evaluate scale factor if servings change
+  useEffect(() => {
+    // You might want to reset scaleFactor to 1 or adjust it based on recipe.servings
+    // For now, it just ensures the display updates if servings change
+    // No direct dependency needed if scaleFactor is independently controlled
+  }, [recipe.servings]);
+
   const addIngredient = () => {
     setRecipe(prev => ({
       ...prev,
-      ingredients: [...prev.ingredients, { 
-        id: Date.now(), 
-        name: '', 
-        amount: '', 
-        preparation: '', 
-        unit: 'cups', 
-        allergens: [] 
+      ingredients: [...prev.ingredients, {
+        id: Date.now(),
+        name: '',
+        amount: '',
+        preparation: '',
+        unit: 'cups',
+        allergens: []
       }]
     }));
   };
@@ -77,7 +77,7 @@ const RecipeBuilder = () => {
   const updateIngredient = (id, field, value) => {
     setRecipe(prev => ({
       ...prev,
-      ingredients: prev.ingredients.map(ing => 
+      ingredients: prev.ingredients.map(ing =>
         ing.id === id ? { ...ing, [field]: value } : ing
       )
     }));
@@ -86,10 +86,10 @@ const RecipeBuilder = () => {
   const toggleIngredientAllergen = (id, allergen) => {
     setRecipe(prev => ({
       ...prev,
-      ingredients: prev.ingredients.map(ing => 
-        ing.id === id 
+      ingredients: prev.ingredients.map(ing =>
+        ing.id === id
           ? {
-              ...ing, 
+              ...ing,
               allergens: ing.allergens.includes(allergen)
                 ? ing.allergens.filter(a => a !== allergen)
                 : [...ing.allergens, allergen]
@@ -108,20 +108,12 @@ const RecipeBuilder = () => {
     }
   };
 
-  const toggleAllergen = (allergen) => {
-    setNewIngredient(prev => ({
-      ...prev,
-      allergens: prev.allergens.includes(allergen)
-        ? prev.allergens.filter(a => a !== allergen)
-        : [...prev.allergens, allergen]
-    }));
-  };
-
   const scaleAmount = (amount) => {
     const num = parseFloat(amount);
     if (isNaN(num)) return amount;
-    const scaled = (num * scaleFactor).toFixed(2);
-    return scaled.endsWith('.00') ? Math.floor(scaled) : scaled;
+    const scaled = num * scaleFactor;
+    // Round to 2 decimal places and then convert back to number to remove .00 if it's a whole number
+    return parseFloat(scaled.toFixed(2));
   };
 
   const getAllergens = () => {
@@ -132,13 +124,22 @@ const RecipeBuilder = () => {
     return Array.from(allAllergens);
   };
 
-  const addTag = (tag) => {
-    if (tag && !recipe.tags.includes(tag)) {
+  const handleAddTag = () => {
+    const trimmedTag = tagInput.trim();
+    if (trimmedTag && !recipe.tags.includes(trimmedTag)) {
       setRecipe(prev => ({
         ...prev,
-        tags: [...prev.tags, tag]
+        tags: [...prev.tags, trimmedTag]
       }));
+      setTagInput(''); // Clear the input field
     }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setRecipe(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
   };
 
   return (
@@ -154,8 +155,9 @@ const RecipeBuilder = () => {
       {/* Recipe Header */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Recipe Name</label>
+          <label htmlFor="recipeName" className="block text-sm font-medium text-gray-700 mb-2">Recipe Name</label>
           <input
+            id="recipeName"
             type="text"
             value={recipe.name}
             onChange={(e) => setRecipe(prev => ({ ...prev, name: e.target.value }))}
@@ -166,37 +168,40 @@ const RecipeBuilder = () => {
 
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+            <label htmlFor="servings" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
               <Users size={16} />
               Servings
             </label>
             <input
+              id="servings"
               type="number"
               value={recipe.servings}
-              onChange={(e) => setRecipe(prev => ({ ...prev, servings: parseInt(e.target.value) }))}
+              onChange={(e) => setRecipe(prev => ({ ...prev, servings: parseInt(e.target.value) || 0 }))} {/* Add || 0 to handle empty string becoming 0 */}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               min="1"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+            <label htmlFor="prepTime" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
               <Clock size={16} />
               Prep (min)
             </label>
             <input
+              id="prepTime"
               type="number"
               value={recipe.prepTime}
-              onChange={(e) => setRecipe(prev => ({ ...prev, prepTime: parseInt(e.target.value) }))}
+              onChange={(e) => setRecipe(prev => ({ ...prev, prepTime: parseInt(e.target.value) || 0 }))}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               min="0"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Cook (min)</label>
+            <label htmlFor="cookTime" className="block text-sm font-medium text-gray-700 mb-2">Cook (min)</label>
             <input
+              id="cookTime"
               type="number"
               value={recipe.cookTime}
-              onChange={(e) => setRecipe(prev => ({ ...prev, cookTime: parseInt(e.target.value) }))}
+              onChange={(e) => setRecipe(prev => ({ ...prev, cookTime: parseInt(e.target.value) || 0 }))}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               min="0"
             />
@@ -206,8 +211,9 @@ const RecipeBuilder = () => {
 
       {/* Description */}
       <div className="mb-8">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">Description</label>
         <textarea
+          id="description"
           value={recipe.description}
           onChange={(e) => setRecipe(prev => ({ ...prev, description: e.target.value }))}
           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -216,28 +222,66 @@ const RecipeBuilder = () => {
         />
       </div>
 
+      {/* Tags Section */}
+      <div className="mb-8">
+        <h3 className="text-xl font-semibold text-gray-800 mb-4">Tags</h3>
+        <div className="flex flex-wrap gap-2 mb-3">
+          {recipe.tags.map((tag, index) => (
+            <span key={index} className="flex items-center bg-orange-100 text-orange-800 text-sm px-3 py-1 rounded-full">
+              {tag}
+              <button
+                type="button"
+                onClick={() => removeTag(tag)}
+                className="ml-2 text-orange-600 hover:text-orange-900"
+                aria-label={`Remove tag ${tag}`}
+              >
+                <X size={14} />
+              </button>
+            </span>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyPress={(e) => { if (e.key === 'Enter') { handleAddTag(); e.preventDefault(); } }}
+            className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            placeholder="Add a tag (e.g., Vegetarian, Dinner)"
+          />
+          <button
+            onClick={handleAddTag}
+            className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
+          >
+            Add Tag
+          </button>
+        </div>
+      </div>
+
       {/* Scaling Controls */}
       <div className="mb-8 p-4 bg-orange-50 rounded-lg">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold text-gray-800">Recipe Scaling</h3>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setScaleFactor(Math.max(0.25, scaleFactor - 0.25))}
+              onClick={() => setScaleFactor(prev => Math.max(0.25, prev - 0.25))}
               className="p-1 bg-orange-500 text-white rounded hover:bg-orange-600"
+              aria-label="Decrease scale factor"
             >
               <Minus size={16} />
             </button>
-            <span className="text-lg font-medium">{scaleFactor}x</span>
+            <span className="text-lg font-medium">{scaleFactor.toFixed(2)}x</span> {/* Display 2 decimal places for scale factor */}
             <button
-              onClick={() => setScaleFactor(scaleFactor + 0.25)}
+              onClick={() => setScaleFactor(prev => prev + 0.25)}
               className="p-1 bg-orange-500 text-white rounded hover:bg-orange-600"
+              aria-label="Increase scale factor"
             >
               <Plus size={16} />
             </button>
           </div>
         </div>
         <p className="text-sm text-gray-600">
-          Scaled for {Math.round(recipe.servings * scaleFactor)} servings
+          Scaled for **{Math.round(recipe.servings * scaleFactor)} servings**
         </p>
       </div>
 
@@ -260,7 +304,7 @@ const RecipeBuilder = () => {
           <div className="col-span-2">Amount</div>
           <div className="col-span-3">Preparation</div>
           <div className="col-span-2">Unit</div>
-          <div className="col-span-2">Allergens</div>
+          <div className="col-span-2">Actions / Allergens</div>
         </div>
 
         {/* Ingredients List */}
@@ -268,7 +312,9 @@ const RecipeBuilder = () => {
           {recipe.ingredients.map((ingredient) => (
             <div key={ingredient.id} className="grid grid-cols-12 gap-3 p-3 bg-white border border-gray-200 rounded-lg items-start">
               <div className="col-span-3">
+                <label htmlFor={`ingredient-name-${ingredient.id}`} className="sr-only">Ingredient Name</label>
                 <input
+                  id={`ingredient-name-${ingredient.id}`}
                   type="text"
                   value={ingredient.name}
                   onChange={(e) => updateIngredient(ingredient.id, 'name', e.target.value)}
@@ -277,9 +323,11 @@ const RecipeBuilder = () => {
                 />
               </div>
               <div className="col-span-2">
+                <label htmlFor={`ingredient-amount-${ingredient.id}`} className="sr-only">Amount</label>
                 <input
+                  id={`ingredient-amount-${ingredient.id}`}
                   type="number"
-                  step="0.25"
+                  step="0.01" // More granular step
                   value={ingredient.amount}
                   onChange={(e) => updateIngredient(ingredient.id, 'amount', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -287,12 +335,14 @@ const RecipeBuilder = () => {
                 />
                 {ingredient.amount && (
                   <div className="text-xs text-gray-500 mt-1">
-                    Scaled: {scaleAmount(ingredient.amount)}
+                    Scaled: **{scaleAmount(ingredient.amount)}**
                   </div>
                 )}
               </div>
               <div className="col-span-3">
+                <label htmlFor={`ingredient-preparation-${ingredient.id}`} className="sr-only">Preparation</label>
                 <input
+                  id={`ingredient-preparation-${ingredient.id}`}
                   type="text"
                   value={ingredient.preparation}
                   onChange={(e) => updateIngredient(ingredient.id, 'preparation', e.target.value)}
@@ -301,7 +351,9 @@ const RecipeBuilder = () => {
                 />
               </div>
               <div className="col-span-2">
+                <label htmlFor={`ingredient-unit-${ingredient.id}`} className="sr-only">Unit</label>
                 <select
+                  id={`ingredient-unit-${ingredient.id}`}
                   value={ingredient.unit}
                   onChange={(e) => updateIngredient(ingredient.id, 'unit', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -313,8 +365,9 @@ const RecipeBuilder = () => {
               </div>
               <div className="col-span-2 flex flex-col gap-2">
                 <div className="flex flex-wrap gap-1">
-                  {commonAllergens.slice(0, 4).map(allergen => (
+                  {commonAllergens.map(allergen => (
                     <button
+                      type="button"
                       key={allergen}
                       onClick={() => toggleIngredientAllergen(ingredient.id, allergen)}
                       className={`px-2 py-1 rounded text-xs ${
@@ -322,21 +375,7 @@ const RecipeBuilder = () => {
                           ? 'bg-red-500 text-white'
                           : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                       }`}
-                    >
-                      {allergen}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {commonAllergens.slice(4).map(allergen => (
-                    <button
-                      key={allergen}
-                      onClick={() => toggleIngredientAllergen(ingredient.id, allergen)}
-                      className={`px-2 py-1 rounded text-xs ${
-                        ingredient.allergens.includes(allergen)
-                          ? 'bg-red-500 text-white'
-                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      }`}
+                      aria-pressed={ingredient.allergens.includes(allergen)}
                     >
                       {allergen}
                     </button>
@@ -353,6 +392,7 @@ const RecipeBuilder = () => {
                 <button
                   onClick={() => removeIngredient(ingredient.id)}
                   className="text-red-500 hover:text-red-700 text-xs flex items-center gap-1 justify-center"
+                  aria-label={`Remove ${ingredient.name || 'ingredient'}`}
                 >
                   <X size={12} />
                   Remove
@@ -378,12 +418,14 @@ const RecipeBuilder = () => {
 
         <div className="space-y-3">
           {recipe.instructions.map((instruction, index) => (
-            <div key={index} className="flex gap-3">
+            <div key={index} className="flex gap-3 items-start"> {/* Add items-start for better alignment */}
               <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
                 {index + 1}
               </div>
               <div className="flex-1 flex gap-2">
+                <label htmlFor={`instruction-${index}`} className="sr-only">Instruction Step {index + 1}</label>
                 <textarea
+                  id={`instruction-${index}`}
                   value={instruction}
                   onChange={(e) => updateInstruction(index, e.target.value)}
                   className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -394,6 +436,7 @@ const RecipeBuilder = () => {
                   <button
                     onClick={() => removeInstruction(index)}
                     className="text-red-500 hover:text-red-700 p-1"
+                    aria-label={`Remove instruction step ${index + 1}`}
                   >
                     <X size={16} />
                   </button>
@@ -411,23 +454,51 @@ const RecipeBuilder = () => {
           {recipe.description && (
             <p className="text-gray-700 mb-4">{recipe.description}</p>
           )}
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="flex items-center gap-2">
               <Users className="text-orange-500" size={18} />
-              <span>{Math.round(recipe.servings * scaleFactor)} servings</span>
+              <span>**{Math.round(recipe.servings * scaleFactor)}** servings</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="text-orange-500" size={18} />
-              <span>{recipe.prepTime + recipe.cookTime} min total</span>
+              <span>**{recipe.prepTime + recipe.cookTime}** min total</span>
             </div>
             {getAllergens().length > 0 && (
               <div className="flex items-center gap-2">
                 <AlertTriangle className="text-red-500" size={18} />
-                <span className="text-red-600">Contains: {getAllergens().join(', ')}</span>
+                <span className="text-red-600">Contains: **{getAllergens().join(', ')}**</span>
               </div>
             )}
           </div>
+
+          {/* Scaled Ingredients for Summary (Optional: Add this for a complete summary) */}
+          {recipe.ingredients.some(ing => ing.name && ing.amount) && (
+            <div className="mt-6">
+              <h4 className="text-lg font-semibold text-gray-800 mb-2">Scaled Ingredients:</h4>
+              <ul className="list-disc list-inside text-gray-700 space-y-1">
+                {recipe.ingredients.filter(ing => ing.name && ing.amount).map((ing, index) => (
+                  <li key={index}>
+                    **{scaleAmount(ing.amount)}** {ing.unit} **{ing.name}** {ing.preparation && `(${ing.preparation})`}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Instructions for Summary (Optional: Add this for a complete summary) */}
+          {recipe.instructions.some(inst => inst.trim() !== '') && (
+            <div className="mt-6">
+              <h4 className="text-lg font-semibold text-gray-800 mb-2">Instructions:</h4>
+              <ol className="list-decimal list-inside text-gray-700 space-y-1">
+                {recipe.instructions.filter(inst => inst.trim() !== '').map((inst, index) => (
+                  <li key={index}>
+                    {inst}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
         </div>
       )}
     </div>
