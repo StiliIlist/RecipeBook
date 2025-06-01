@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Plus, Minus, X, AlertTriangle, Users, Clock, ChefHat, Printer } from 'lucide-react';
 
 const RecipeBuilder = () => {
@@ -144,388 +144,409 @@ const RecipeBuilder = () => {
     window.print();
   };
 
+  // CSS styles for print handling
+  const printStyles = `
+    @media print {
+      .print-hide {
+        display: none !important;
+      }
+      .print-show {
+        display: block !important;
+      }
+      body {
+        margin: 0;
+        padding: 20px;
+      }
+      .recipe-summary {
+        page-break-inside: avoid;
+      }
+    }
+  `;
+
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <div className="mb-8 flex justify-between items-center print-hide"> {/* Added print-hide class */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-          <ChefHat className="text-orange-500" />
-          Recipe Builder
-        </h1>
-        {/* Print Button - Only show if there's a recipe name */}
-        {recipe.name && (
-          <button
-            onClick={handlePrint}
-            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 flex items-center gap-2"
-            aria-label="Print Recipe"
-          >
-            <Printer size={20} />
-            Print to PDF
-          </button>
-        )}
-      </div>
-      <p className="text-gray-600 mb-6 print-hide">Create detailed recipes with scaling and allergen tracking</p>
-
-      {/* Recipe Header */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 print-hide">
-        <div>
-          <label htmlFor="recipeName" className="block text-sm font-medium text-gray-700 mb-2">Recipe Name</label>
-          <input
-            id="recipeName"
-            type="text"
-            value={recipe.name}
-            onChange={(e) => setRecipe(prev => ({ ...prev, name: e.target.value }))}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            placeholder="Enter recipe name..."
-          />
-        </div>
-
-        <div className="grid grid-cols-3 gap-3">
-          <div>
-            <label htmlFor="servings" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
-              <Users size={16} />
-              Servings
-            </label>
-            <input
-              id="servings"
-              type="number"
-              value={recipe.servings}
-              onChange={(e) => setRecipe(prev => ({ ...prev, servings: parseInt(e.target.value) || 0 }))}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              min="1"
-            />
-          </div>
-          <div>
-            <label htmlFor="prepTime" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
-              <Clock size={16} />
-              Prep (min)
-            </label>
-            <input
-              id="prepTime"
-              type="number"
-              value={recipe.prepTime}
-              onChange={(e) => setRecipe(prev => ({ ...prev, prepTime: parseInt(e.target.value) || 0 }))}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              min="0"
-            />
-          </div>
-          <div>
-            <label htmlFor="cookTime" className="block text-sm font-medium text-gray-700 mb-2">Cook (min)</label>
-            <input
-              id="cookTime"
-              type="number"
-              value={recipe.cookTime}
-              onChange={(e) => setRecipe(prev => ({ ...prev, cookTime: parseInt(e.target.value) || 0 }))}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              min="0"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Description */}
-      <div className="mb-8 print-hide">
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-        <textarea
-          id="description"
-          value={recipe.description}
-          onChange={(e) => setRecipe(prev => ({ ...prev, description: e.target.value }))}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          rows="3"
-          placeholder="Describe your recipe..."
-        />
-      </div>
-
-      {/* Tags Section */}
-      <div className="mb-8 print-hide">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">Tags</h3>
-        <div className="flex flex-wrap gap-2 mb-3">
-          {recipe.tags.map((tag, index) => (
-            <span key={index} className="flex items-center bg-orange-100 text-orange-800 text-sm px-3 py-1 rounded-full">
-              {tag}
-              <button
-                type="button"
-                onClick={() => removeTag(tag)}
-                className="ml-2 text-orange-600 hover:text-orange-900"
-                aria-label={`Remove tag ${tag}`}
-              >
-                <X size={14} />
-              </button>
-            </span>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyPress={(e) => { if (e.key === 'Enter') { handleAddTag(); e.preventDefault(); } }}
-            className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            placeholder="Add a tag (e.g., Vegetarian, Dinner)"
-          />
-          <button
-            onClick={handleAddTag}
-            className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
-          >
-            Add Tag
-          </button>
-        </div>
-      </div>
-
-      {/* Scaling Controls */}
-      <div className="mb-8 p-4 bg-orange-50 rounded-lg print-hide">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold text-gray-800">Recipe Scaling</h3>
-          <div className="flex items-center gap-3">
+    <>
+      <style dangerouslySetInnerHTML={{ __html: printStyles }} />
+      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+        <div className="mb-8 flex justify-between items-center print-hide">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+            <ChefHat className="text-orange-500" />
+            Recipe Builder
+          </h1>
+          {/* Print Button - Only show if there's a recipe name */}
+          {recipe.name && (
             <button
-              onClick={() => setScaleFactor(prev => Math.max(0.25, prev - 0.25))}
-              className="p-1 bg-orange-500 text-white rounded hover:bg-orange-600"
-              aria-label="Decrease scale factor"
+              onClick={handlePrint}
+              className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 flex items-center gap-2"
+              aria-label="Print Recipe"
             >
-              <Minus size={16} />
+              <Printer size={20} />
+              Print to PDF
             </button>
-            <span className="text-lg font-medium">{scaleFactor.toFixed(2)}x</span>
+          )}
+        </div>
+        <p className="text-gray-600 mb-6 print-hide">Create detailed recipes with scaling and allergen tracking</p>
+
+        {/* Recipe Header */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 print-hide">
+          <div>
+            <label htmlFor="recipeName" className="block text-sm font-medium text-gray-700 mb-2">Recipe Name</label>
+            <input
+              id="recipeName"
+              type="text"
+              value={recipe.name}
+              onChange={(e) => setRecipe(prev => ({ ...prev, name: e.target.value }))}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="Enter recipe name..."
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label htmlFor="servings" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                <Users size={16} />
+                Servings
+              </label>
+              <input
+                id="servings"
+                type="number"
+                value={recipe.servings}
+                onChange={(e) => setRecipe(prev => ({ ...prev, servings: parseInt(e.target.value) || 0 }))}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                min="1"
+              />
+            </div>
+            <div>
+              <label htmlFor="prepTime" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                <Clock size={16} />
+                Prep (min)
+              </label>
+              <input
+                id="prepTime"
+                type="number"
+                value={recipe.prepTime}
+                onChange={(e) => setRecipe(prev => ({ ...prev, prepTime: parseInt(e.target.value) || 0 }))}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                min="0"
+              />
+            </div>
+            <div>
+              <label htmlFor="cookTime" className="block text-sm font-medium text-gray-700 mb-2">Cook (min)</label>
+              <input
+                id="cookTime"
+                type="number"
+                value={recipe.cookTime}
+                onChange={(e) => setRecipe(prev => ({ ...prev, cookTime: parseInt(e.target.value) || 0 }))}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                min="0"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Description */}
+        <div className="mb-8 print-hide">
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+          <textarea
+            id="description"
+            value={recipe.description}
+            onChange={(e) => setRecipe(prev => ({ ...prev, description: e.target.value }))}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            rows="3"
+            placeholder="Describe your recipe..."
+          />
+        </div>
+
+        {/* Tags Section */}
+        <div className="mb-8 print-hide">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">Tags</h3>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {recipe.tags.map((tag, index) => (
+              <span key={index} className="flex items-center bg-orange-100 text-orange-800 text-sm px-3 py-1 rounded-full">
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => removeTag(tag)}
+                  className="ml-2 text-orange-600 hover:text-orange-900"
+                  aria-label={`Remove tag ${tag}`}
+                >
+                  <X size={14} />
+                </button>
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyPress={(e) => { if (e.key === 'Enter') { handleAddTag(); e.preventDefault(); } }}
+              className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="Add a tag (e.g., Vegetarian, Dinner)"
+            />
             <button
-              onClick={() => setScaleFactor(prev => prev + 0.25)}
-              className="p-1 bg-orange-500 text-white rounded hover:bg-orange-600"
-              aria-label="Increase scale factor"
+              onClick={handleAddTag}
+              className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
+            >
+              Add Tag
+            </button>
+          </div>
+        </div>
+
+        {/* Scaling Controls */}
+        <div className="mb-8 p-4 bg-orange-50 rounded-lg print-hide">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold text-gray-800">Recipe Scaling</h3>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setScaleFactor(prev => Math.max(0.25, prev - 0.25))}
+                className="p-1 bg-orange-500 text-white rounded hover:bg-orange-600"
+                aria-label="Decrease scale factor"
+              >
+                <Minus size={16} />
+              </button>
+              <span className="text-lg font-medium">{scaleFactor.toFixed(2)}x</span>
+              <button
+                onClick={() => setScaleFactor(prev => prev + 0.25)}
+                className="p-1 bg-orange-500 text-white rounded hover:bg-orange-600"
+                aria-label="Increase scale factor"
+              >
+                <Plus size={16} />
+              </button>
+            </div>
+          </div>
+          <p className="text-sm text-gray-600">
+            Scaled for <strong>{Math.round(recipe.servings * scaleFactor)} servings</strong>
+          </p>
+        </div>
+
+        {/* Ingredients Section */}
+        <div className="mb-8 print-hide">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold text-gray-800">Ingredients</h3>
+            <button
+              onClick={addIngredient}
+              className="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 flex items-center gap-1"
             >
               <Plus size={16} />
+              Add Ingredient
             </button>
           </div>
-        </div>
-        <p className="text-sm text-gray-600">
-          Scaled for **{Math.round(recipe.servings * scaleFactor)} servings**
-        </p>
-      </div>
 
-      {/* Ingredients Section */}
-      <div className="mb-8 print-hide">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold text-gray-800">Ingredients</h3>
-          <button
-            onClick={addIngredient}
-            className="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 flex items-center gap-1"
-          >
-            <Plus size={16} />
-            Add Ingredient
-          </button>
-        </div>
+          {/* Ingredient Headers */}
+          <div className="grid grid-cols-12 gap-3 mb-3 p-3 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
+            <div className="col-span-3">Ingredient Name</div>
+            <div className="col-span-2">Amount</div>
+            <div className="col-span-3">Preparation</div>
+            <div className="col-span-2">Unit</div>
+            <div className="col-span-2">Actions / Allergens</div>
+          </div>
 
-        {/* Ingredient Headers */}
-        <div className="grid grid-cols-12 gap-3 mb-3 p-3 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
-          <div className="col-span-3">Ingredient Name</div>
-          <div className="col-span-2">Amount</div>
-          <div className="col-span-3">Preparation</div>
-          <div className="col-span-2">Unit</div>
-          <div className="col-span-2">Actions / Allergens</div>
-        </div>
-
-        {/* Ingredients List */}
-        <div className="space-y-3">
-          {recipe.ingredients.map((ingredient) => (
-            <div key={ingredient.id} className="grid grid-cols-12 gap-3 p-3 bg-white border border-gray-200 rounded-lg items-start">
-              <div className="col-span-3">
-                <label htmlFor={`ingredient-name-${ingredient.id}`} className="sr-only">Ingredient Name</label>
-                <input
-                  id={`ingredient-name-${ingredient.id}`}
-                  type="text"
-                  value={ingredient.name}
-                  onChange={(e) => updateIngredient(ingredient.id, 'name', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="Enter ingredient..."
-                />
-              </div>
-              <div className="col-span-2">
-                <label htmlFor={`ingredient-amount-${ingredient.id}`} className="sr-only">Amount</label>
-                <input
-                  id={`ingredient-amount-${ingredient.id}`}
-                  type="number"
-                  step="0.01"
-                  value={ingredient.amount}
-                  onChange={(e) => updateIngredient(ingredient.id, 'amount', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="0"
-                />
-                {ingredient.amount && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    Scaled: **{scaleAmount(ingredient.amount)}**
-                  </div>
-                )}
-              </div>
-              <div className="col-span-3">
-                <label htmlFor={`ingredient-preparation-${ingredient.id}`} className="sr-only">Preparation</label>
-                <input
-                  id={`ingredient-preparation-${ingredient.id}`}
-                  type="text"
-                  value={ingredient.preparation}
-                  onChange={(e) => updateIngredient(ingredient.id, 'preparation', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="diced, chopped, etc."
-                />
-              </div>
-              <div className="col-span-2">
-                <label htmlFor={`ingredient-unit-${ingredient.id}`} className="sr-only">Unit</label>
-                <select
-                  id={`ingredient-unit-${ingredient.id}`}
-                  value={ingredient.unit}
-                  onChange={(e) => updateIngredient(ingredient.id, 'unit', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                >
-                  {units.map(unit => (
-                    <option key={unit} value={unit}>{unit}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-span-2 flex flex-col gap-2">
-                <div className="flex flex-wrap gap-1">
-                  {commonAllergens.map(allergen => (
-                    <button
-                      type="button"
-                      key={allergen}
-                      onClick={() => toggleIngredientAllergen(ingredient.id, allergen)}
-                      className={`px-2 py-1 rounded text-xs ${
-                        ingredient.allergens.includes(allergen)
-                          ? 'bg-red-500 text-white'
-                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      }`}
-                      aria-pressed={ingredient.allergens.includes(allergen)}
-                    >
-                      {allergen}
-                    </button>
-                  ))}
+          {/* Ingredients List */}
+          <div className="space-y-3">
+            {recipe.ingredients.map((ingredient) => (
+              <div key={ingredient.id} className="grid grid-cols-12 gap-3 p-3 bg-white border border-gray-200 rounded-lg items-start">
+                <div className="col-span-3">
+                  <label htmlFor={`ingredient-name-${ingredient.id}`} className="sr-only">Ingredient Name</label>
+                  <input
+                    id={`ingredient-name-${ingredient.id}`}
+                    type="text"
+                    value={ingredient.name}
+                    onChange={(e) => updateIngredient(ingredient.id, 'name', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="Enter ingredient..."
+                  />
                 </div>
-                {ingredient.allergens.length > 0 && (
-                  <div className="flex items-center gap-1 mt-1">
-                    <AlertTriangle size={12} className="text-red-500" />
-                    <span className="text-xs text-red-600">
-                      {ingredient.allergens.length} selected
-                    </span>
-                  </div>
-                )}
-                <button
-                  onClick={() => removeIngredient(ingredient.id)}
-                  className="text-red-500 hover:text-red-700 text-xs flex items-center gap-1 justify-center"
-                  aria-label={`Remove ${ingredient.name || 'ingredient'}`}
-                >
-                  <X size={12} />
-                  Remove
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Instructions Section */}
-      <div className="mb-8 print-hide">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold text-gray-800">Instructions</h3>
-          <button
-            onClick={addInstruction}
-            className="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 flex items-center gap-1"
-          >
-            <Plus size={16} />
-            Add Step
-          </button>
-        </div>
-
-        <div className="space-y-3">
-          {recipe.instructions.map((instruction, index) => (
-            <div key={index} className="flex gap-3 items-start">
-              <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                {index + 1}
-              </div>
-              <div className="flex-1 flex gap-2">
-                <label htmlFor={`instruction-${index}`} className="sr-only">Instruction Step {index + 1}</label>
-                <textarea
-                  id={`instruction-${index}`}
-                  value={instruction}
-                  onChange={(e) => updateInstruction(index, e.target.value)}
-                  className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  rows="2"
-                  placeholder="Enter instruction step..."
-                />
-                {recipe.instructions.length > 1 && (
-                  <button
-                    onClick={() => removeInstruction(index)}
-                    className="text-red-500 hover:text-red-700 p-1"
-                    aria-label={`Remove instruction step ${index + 1}`}
+                <div className="col-span-2">
+                  <label htmlFor={`ingredient-amount-${ingredient.id}`} className="sr-only">Amount</label>
+                  <input
+                    id={`ingredient-amount-${ingredient.id}`}
+                    type="number"
+                    step="0.01"
+                    value={ingredient.amount}
+                    onChange={(e) => updateIngredient(ingredient.id, 'amount', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="0"
+                  />
+                  {ingredient.amount && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      Scaled: <strong>{scaleAmount(ingredient.amount)}</strong>
+                    </div>
+                  )}
+                </div>
+                <div className="col-span-3">
+                  <label htmlFor={`ingredient-preparation-${ingredient.id}`} className="sr-only">Preparation</label>
+                  <input
+                    id={`ingredient-preparation-${ingredient.id}`}
+                    type="text"
+                    value={ingredient.preparation}
+                    onChange={(e) => updateIngredient(ingredient.id, 'preparation', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="diced, chopped, etc."
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label htmlFor={`ingredient-unit-${ingredient.id}`} className="sr-only">Unit</label>
+                  <select
+                    id={`ingredient-unit-${ingredient.id}`}
+                    value={ingredient.unit}
+                    onChange={(e) => updateIngredient(ingredient.id, 'unit', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   >
-                    <X size={16} />
+                    {units.map(unit => (
+                      <option key={unit} value={unit}>{unit}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-span-2 flex flex-col gap-2">
+                  <div className="flex flex-wrap gap-1">
+                    {commonAllergens.map(allergen => (
+                      <button
+                        type="button"
+                        key={allergen}
+                        onClick={() => toggleIngredientAllergen(ingredient.id, allergen)}
+                        className={`px-2 py-1 rounded text-xs ${
+                          ingredient.allergens.includes(allergen)
+                            ? 'bg-red-500 text-white'
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                        aria-pressed={ingredient.allergens.includes(allergen)}
+                      >
+                        {allergen}
+                      </button>
+                    ))}
+                  </div>
+                  {ingredient.allergens.length > 0 && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <AlertTriangle size={12} className="text-red-500" />
+                      <span className="text-xs text-red-600">
+                        {ingredient.allergens.length} selected
+                      </span>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => removeIngredient(ingredient.id)}
+                    className="text-red-500 hover:text-red-700 text-xs flex items-center gap-1 justify-center"
+                    aria-label={`Remove ${ingredient.name || 'ingredient'}`}
+                  >
+                    <X size={12} />
+                    Remove
                   </button>
-                )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Recipe Summary - This is what will be printed */}
-      {recipe.name && (
-        <div ref={recipeSummaryRef} className="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-lg print-only-block"> {/* Added print-only-block */}
-          <h3 className="text-xl font-bold text-gray-800 mb-3">{recipe.name}</h3>
-          {recipe.description && (
-            <p className="text-gray-700 mb-4">{recipe.description}</p>
-          )}
-          {recipe.tags.length > 0 && (
-            <div className="mb-4">
-                <span className="font-semibold text-gray-700">Tags: </span>
-                {recipe.tags.map((tag, index) => (
-                    <span key={index} className="inline-block bg-orange-200 text-orange-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
-                        {tag}
-                    </span>
-                ))}
-            </div>
-          )}
+        {/* Instructions Section */}
+        <div className="mb-8 print-hide">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold text-gray-800">Instructions</h3>
+            <button
+              onClick={addInstruction}
+              className="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 flex items-center gap-1"
+            >
+              <Plus size={16} />
+              Add Step
+            </button>
+          </div>
 
+          <div className="space-y-3">
+            {recipe.instructions.map((instruction, index) => (
+              <div key={index} className="flex gap-3 items-start">
+                <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                  {index + 1}
+                </div>
+                <div className="flex-1 flex gap-2">
+                  <label htmlFor={`instruction-${index}`} className="sr-only">Instruction Step {index + 1}</label>
+                  <textarea
+                    id={`instruction-${index}`}
+                    value={instruction}
+                    onChange={(e) => updateInstruction(index, e.target.value)}
+                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    rows="2"
+                    placeholder="Enter instruction step..."
+                  />
+                  {recipe.instructions.length > 1 && (
+                    <button
+                      onClick={() => removeInstruction(index)}
+                      className="text-red-500 hover:text-red-700 p-1"
+                      aria-label={`Remove instruction step ${index + 1}`}
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div className="flex items-center gap-2">
-              <Users className="text-orange-500" size={18} />
-              <span>**{Math.round(recipe.servings * scaleFactor)}** servings</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="text-orange-500" size={18} />
-              <span>**{recipe.prepTime + recipe.cookTime}** min total</span>
-            </div>
-            {getAllergens().length > 0 && (
+        {/* Recipe Summary - This is what will be printed */}
+        {recipe.name && (
+          <div ref={recipeSummaryRef} className="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-lg recipe-summary print-show">
+            <h3 className="text-xl font-bold text-gray-800 mb-3">{recipe.name}</h3>
+            {recipe.description && (
+              <p className="text-gray-700 mb-4">{recipe.description}</p>
+            )}
+            {recipe.tags.length > 0 && (
+              <div className="mb-4">
+                  <span className="font-semibold text-gray-700">Tags: </span>
+                  {recipe.tags.map((tag, index) => (
+                      <span key={index} className="inline-block bg-orange-200 text-orange-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                          {tag}
+                      </span>
+                  ))}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="text-red-500" size={18} />
-                <span className="text-red-600">Contains: **{getAllergens().join(', ')}**</span>
+                <Users className="text-orange-500" size={18} />
+                <span><strong>{Math.round(recipe.servings * scaleFactor)}</strong> servings</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="text-orange-500" size={18} />
+                <span><strong>{recipe.prepTime + recipe.cookTime}</strong> min total</span>
+              </div>
+              {getAllergens().length > 0 && (
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="text-red-500" size={18} />
+                  <span className="text-red-600">Contains: <strong>{getAllergens().join(', ')}</strong></span>
+                </div>
+              )}
+            </div>
+
+            {/* Scaled Ingredients for Summary */}
+            {recipe.ingredients.some(ing => ing.name && ing.amount) && (
+              <div className="mt-6">
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">Scaled Ingredients:</h4>
+                <ul className="list-disc list-inside text-gray-700 space-y-1">
+                  {recipe.ingredients.filter(ing => ing.name && ing.amount).map((ing, index) => (
+                    <li key={index}>
+                      <strong>{scaleAmount(ing.amount)}</strong> {ing.unit} <strong>{ing.name}</strong> {ing.preparation && `(${ing.preparation})`}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Instructions for Summary */}
+            {recipe.instructions.some(inst => inst.trim() !== '') && (
+              <div className="mt-6">
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">Instructions:</h4>
+                <ol className="list-decimal list-inside text-gray-700 space-y-1">
+                  {recipe.instructions.filter(inst => inst.trim() !== '').map((inst, index) => (
+                    <li key={index}>
+                      {inst}
+                    </li>
+                  ))}
+                </ol>
               </div>
             )}
           </div>
-
-          {/* Scaled Ingredients for Summary */}
-          {recipe.ingredients.some(ing => ing.name && ing.amount) && (
-            <div className="mt-6">
-              <h4 className="text-lg font-semibold text-gray-800 mb-2">Scaled Ingredients:</h4>
-              <ul className="list-disc list-inside text-gray-700 space-y-1">
-                {recipe.ingredients.filter(ing => ing.name && ing.amount).map((ing, index) => (
-                  <li key={index}>
-                    **{scaleAmount(ing.amount)}** {ing.unit} **{ing.name}** {ing.preparation && `(${ing.preparation})`}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Instructions for Summary */}
-          {recipe.instructions.some(inst => inst.trim() !== '') && (
-            <div className="mt-6">
-              <h4 className="text-lg font-semibold text-gray-800 mb-2">Instructions:</h4>
-              <ol className="list-decimal list-inside text-gray-700 space-y-1">
-                {recipe.instructions.filter(inst => inst.trim() !== '').map((inst, index) => (
-                  <li key={index}>
-                    {inst}
-                  </li>
-                ))}
-              </ol>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 };
 
