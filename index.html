@@ -12,7 +12,7 @@
             --secondary: #0ea5e9;
             --dark: #1e293b;
             --light: #f8fafc;
-            --gray: #94a3b8;
+            --gray: #94a极3b8;
             --success: #22c55e;
             --danger: #ef4444;
         }
@@ -126,7 +126,7 @@
         .card {
             background: white;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 极0, 0.05);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             padding: 20px;
             margin-bottom: 20px;
             border: 1px solid #e2e8f0;
@@ -264,7 +264,7 @@
             color: #854d0e;
         }
         
-        .badge-danger {
+极 .badge-danger {
             background-color: #fee2e2;
             color: #b91c1c;
         }
@@ -281,7 +281,7 @@
         
         .action-btn {
             padding: 6px 10px;
-            border-radius: 6px;
+            border-radius: 6极;
             cursor: pointer;
             border: none;
             background: none;
@@ -493,42 +493,7 @@
                         </tr>
                     </thead>
                     <tbody id="recipes-list">
-                        <tr>
-                            <td>Vegetable Lasagna</td>
-                            <td>Dinner</td>
-                            <td>30 min</td>
-                            <td>45 min</td>
-                            <td>6</td>
-                            <td class="action-btns">
-                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Blueberry Pancakes</td>
-                            <td>Breakfast</td>
-                            <td>15 min</td>
-                            <td>20 min</td>
-                            <td>4</td>
-                            <td class="action-btns">
-                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Chocolate Chip Cookies</td>
-                            <td>Dessert</td>
-                            <td>20 min</td>
-                            <td>12 min</td>
-                            <td>24</td>
-                            <td class="action-btns">
-                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            </td>
-                        </tr>
+                        <!-- Recipes will be dynamically added here -->
                     </tbody>
                 </table>
             </div>
@@ -553,7 +518,7 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="recipe-category">Category</极label>
+                        <label for="recipe-category">Category</label>
                         <select id="recipe-category">
                             <option value="">Select Category</option>
                             <option value="breakfast">Breakfast</option>
@@ -591,7 +556,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Ingredients</h3>
-                    <button class="btn btn-secondary">
+                    <button class="btn btn-secondary" id="add-ingredient-to-recipe-btn">
                         <i class="fas fa-plus me-2"></i>Add Ingredient
                     </button>
                 </div>
@@ -607,40 +572,8 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>Organic Tomatoes</td>
-                            <td>4</td>
-                            <td>pieces</td>
-                            <td>$1.20</td>
-                            <td><span class="badge badge-success">None</span></td>
-                            <td class="action-btns">
-                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Whole Wheat Flour</td>
-                            <td>2</td>
-                            <td>cups</td>
-                            <td>$0.90</td>
-                            <td><span class="badge badge-warning">Gluten</span></td>
-                            <td class="action-btns">
-                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Mozzarella Cheese</td>
-                            <td>200</td>
-                            <td>grams</td>
-                            <td>$2.50</td>
-                            <td><span class="badge badge-danger">Dairy</span></td>
-                            <td class="action-btns">
-                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
+                    <tbody id="recipe-ingredients-list">
+                        <!-- Ingredients will be dynamically added here -->
                     </tbody>
                 </table>
             </div>
@@ -648,13 +581,13 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Instructions</h3>
-                    <button class="btn btn-secondary">
+                    <button class="btn btn-secondary" id="add-instruction-btn">
                         <i class="fas fa-plus me-2"></i>Add Step
                     </button>
                 </div>
                 
-                <div class="form-group">
-                    <textarea id="instructions" rows="5" placeholder="Enter step-by-step instructions..."></textarea>
+                <div id="recipe-instructions-list">
+                    <!-- Instructions will be dynamically added here -->
                 </div>
             </div>
         </div>
@@ -663,6 +596,251 @@
         <div id="ingredients-manager" class="page">
             <h2><i class="fas fa-carrot me-2"></i>Ingredients Management</h2>
             
+            <!-- Add New Ingredient Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Add New Ingredient</h3>
+                    <button class="btn btn-primary" id="save-ingredient-btn">
+                        <i class="fas fa-save me-2"></i>Save Ingredient
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-2">
+                    <div class="form-group">
+                        <label for="ingredient-name">Ingredient Name</label>
+                        <input type="text" id="ingredient-name" placeholder="e.g., Organic Whole Wheat Flour">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ingredient-category">Category</label>
+                        <select id="ingredient-category">
+                            <option value="">Select Category</option>
+                            <option value="produce">Produce</option>
+                            <option value="dairy">Dairy</option>
+                            <option value="meat">Meat & Poultry</option>
+                            <option value="pantry">Pantry</option>
+                            <option value="spices">Spices & Herbs</option>
+                            <option value="baking">Baking</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active" data-tab="nutrition">Nutrition</div>
+                    <div class="tab" data-tab="allergens">Allergens</div>
+                    <div class="tab" data-tab="packaging">Packaging</div>
+                    <div class="tab" data-tab="suppliers">Suppliers</div>
+                    <div class="tab" data-tab="conversions">Conversions</div>
+                </div>
+                
+                <div class="tab-content active" id="nutrition-tab">
+                    <div class="grid grid-cols-3">
+                        <div class="form-group">
+                            <label for="calories">Calories (per 100g)</label>
+                            <input type="number" id="calories" placeholder="e.g., 340">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="protein">Protein (g)</label>
+                            <input type="number" id="protein" placeholder="e.g., 13">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="carbs">Carbohydrates (g)</label>
+                            <input type="number" id="carbs" placeholder="e.g., 72">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fat">Fat (g)</label>
+                            <input type="number" id="fat" placeholder="e.g., 2.5">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fiber">Fiber (g)</label>
+                            <input type="number" id="fiber" placeholder="e.g., 10">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="sugar">Sugar (g)</label>
+                            <input type="number" id="sugar" placeholder="e.g., 0.4">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="allergens-tab">
+                    <div class="form-group">
+                        <label>Common Allergens</label>
+                        <div class="grid grid-cols-3">
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="allergen" value="Gluten"> Gluten
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="allergen" value="Dairy"> Dairy
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="allergen" value="Eggs"> Eggs
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="allergen" value="Soy"> Soy
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="allergen" value="Peanuts"> Peanuts
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="allergen" value="Tree Nuts"> Tree Nuts
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="allergen" value="Fish"> Fish
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="allergen" value="Shellfish"> Shellfish
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="other-allergens">Other Allergens (comma separated)</label>
+                        <input type="text" id="other-allergens" placeholder="e.g., Sesame, Mustard">
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="packaging-tab">
+                    <div class="grid grid-cols-2">
+                        <div class="form-group">
+                            <label for="package-type">Package Type</label>
+                            <select id="package-type">
+                                <option value="">Select Package Type</option>
+                                <option value="bag">Bag</option>
+                                <option value="box">Box</option>
+                                <option value="jar">Jar</option>
+                                <option value="bottle">Bottle</option>
+                                <option value="can">Can</option>
+                                <option value="bulk">Bulk</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="package-weight">Package Weight/Volume</label>
+                            <input type="text" id="package-weight" placeholder="e.g., 1kg, 500ml">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2">
+                        <div class="form-group">
+                            <label for="units-per-package">Units per Package</label>
+                            <input type="number" id="units-per-package" placeholder="e.g., 1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="package-cost">Package Cost ($)</label>
+                            <input type="number" step="0.01" id="package-cost" placeholder="e.g., 5.99">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="suppliers-tab">
+                    <div class="form-group">
+                        <label for="supplier-name">Supplier Name</label>
+                        <input type="text" id="supplier-name" placeholder="e.g., Organic Farms Co.">
+                    </div>
+                    
+                    <div class="grid grid-cols-2">
+                        <div class="form-group">
+                            <label for="supplier-contact">Contact Person</label>
+                            <input type="text" id="supplier-contact" placeholder="e.g., John Smith">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="supplier-phone">Phone</label>
+                            <input type="tel" id="supplier-phone" placeholder="e.g., (555) 123-4567">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="supplier-email">Email</label>
+                        <input type="email" id="supplier-email" placeholder="e.g., contact@organicfarms.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="supplier-notes">Notes</label>
+                        <textarea id="supplier-notes" rows="2" placeholder="Any special notes about this supplier..."></textarea>
+                    </div>
+                    
+                    <button class="btn btn-secondary" id="add-supplier-btn">
+                        <i class="fas fa-plus me-2"></i>Add Another Supplier
+                    </button>
+                </div>
+                
+                <div class="tab-content" id="conversions-tab">
+                    <div class="form-group">
+                        <label for="base-unit">Base Unit</label>
+                        <select id="base-unit">
+                            <option value="grams">Grams (g)</option>
+                            <option value="milliliters">Milliliters (ml)</option>
+                            <option value="pieces">Pieces</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Common Conversions</label>
+                        <div class="grid grid-cols-3">
+                            <div>
+                                <label>Cups</label>
+                                <input type="number" step="0.01" id="cups-conversion" placeholder="e.g., 0.25">
+                            </div>
+                            <div>
+                                <label>Tablespoons</label>
+                                <input type="number" step="0.01" id="tablespoons-conversion" placeholder="e.g., 4">
+                            </div>
+                            <div>
+                                <label>Teaspoons</label>
+                                <input type="number" step="0.01" id="teaspoons-conversion" placeholder="e.g., 12">
+                            </div>
+                            <div>
+                                <label>Ounces</label>
+                                <input type="number" step="0.01" id="ounces-conversion" placeholder极="e.g., 3.5">
+                            </div>
+                            <div>
+                                <label>Pounds</label>
+                                <input type="number" step="0.01" id="pounds-conversion" placeholder="e.g., 0.22">
+                            </div>
+                            <极div>
+                                <label>Liters</label>
+                                <input type="number" step="0.01" id="liters-conversion" placeholder="e.g., 0.5">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="custom-conversion">Add Custom Conversion</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <input type="text" id="custom-conversion-name" placeholder="Unit name" class="col-span-1">
+                            <input type="number" step="0.01" id="custom-conversion-value" placeholder="Value" class="col-span-1">
+                            <button class="btn btn-secondary col-span-1" id="add-custom-conversion-btn">
+                                <i class="fas fa-plus me-2"></i>Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ingredients Database Table -->
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Ingredients Database</h3>
@@ -671,7 +849,7 @@
                     </div>
                 </div>
                 
-                <table>
+                <table id="ingredients-table">
                     <thead>
                         <tr>
                             <th>Ingredient</th>
@@ -682,40 +860,8 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>Organic Whole Wheat Flour</td>
-                            <td>Baking</td>
-                            <td><span class="badge badge-warning">Gluten</span></td>
-                            <td>5kg bag</td>
-                            <td>$12.99</td>
-                            <td class="action-btns">
-                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Organic Tomatoes</td>
-                            <td>Produce</td>
-                            <td><span class="badge badge-success">None</span></td>
-                            <td>1kg box</td>
-                            <td>$4.50</td>
-                            <td class="action-btns">
-                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Fresh Mozzarella</td>
-                            <td>Dairy</td>
-                            <td><span class="badge badge-danger">Dairy</span></td>
-                            <td>200g pack</td>
-                            <td>$3.25</td>
-                            <td class="action-btns">
-                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
+                    <tbody id="ingredients-list">
+                        <!-- Ingredients will be dynamically added here -->
                     </tbody>
                 </table>
             </div>
@@ -799,6 +945,13 @@
     </footer>
     
     <script>
+        // Global state
+        let ingredients = [];
+        let recipes = [];
+        let recipeIngredients = [];
+        let recipeInstructions = [];
+        let nextRecipeId = 1;
+
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
             // Set up navigation
@@ -806,7 +959,91 @@
             
             // Set up event listeners
             setupEventListeners();
+            
+            // Load sample data
+            loadSampleData();
+            
+            // Render initial data
+            renderIngredientsList();
+            renderRecipes();
         });
+        
+        function loadSampleData() {
+            // Sample ingredients
+            ingredients = [
+                {
+                    id: 1,
+                    name: "Organic Whole Wheat Flour",
+                    category: "Baking",
+                    allergens: ["Gluten"],
+                    packageType: "bag",
+                    packageWeight: "5kg",
+                    packageCost: 12.99,
+                    calories: 340,
+                    protein: 13,
+                    carbs: 72,
+                    fat: 2.5,
+                    fiber: 10,
+                    sugar: 0.4
+                },
+                {
+                    id: 2,
+                    name: "Organic Tomatoes",
+                    category: "Produce",
+                    allergens: [],
+                    packageType: "box",
+                    packageWeight: "1kg",
+                    packageCost: 4.50,
+                    calories: 18,
+                    protein: 0.9,
+                    carbs: 3.9,
+                    fat: 0.2,
+                    fiber: 1.2,
+                    sugar: 2.6
+                },
+                {
+                    id: 3,
+                    name: "Fresh Mozzarella",
+                    category: "Dairy",
+                    allergens: ["Dairy"],
+                    packageType: "pack",
+                    packageWeight: "200g",
+                    packageCost: 3.25,
+                    calories: 300,
+                    protein: 22,
+                    carbs: 2,
+                    fat: 22,
+                    fiber: 0,
+                    sugar: 1
+                }
+            ];
+            
+            // Sample recipes
+            recipes = [
+                {
+                    id: 1,
+                    name: "Vegetable Lasagna",
+                    category: "Dinner",
+                    description: "A delicious vegetarian lasagna filled with fresh vegetables and creamy ricotta cheese.",
+                    prepTime: 30,
+                    cookTime: 45,
+                    servings: 6,
+                    ingredients: [
+                        { name: "Organic Tomatoes", quantity: 4, unit: "pieces" },
+                        { name: "Whole Wheat Flour", quantity: 2, unit: "cups" },
+                        { name: "Fresh Mozzarella", quantity: 200, unit: "grams" }
+                    ],
+                    instructions: [
+                        "Preheat oven to 375°F (190°C)",
+                        "Prepare tomato sauce by simmering tomatoes and garlic",
+                        "Layer lasagna noodles, sauce, and cheeses in baking dish",
+                        "Bake for 45 minutes until golden and bubbly",
+                        "Let rest for 10 minutes before serving"
+                    ],
+                    created: "2025-06-22"
+                }
+            ];
+        }
         
         function setupNavigation() {
             // Navigation button event listeners
@@ -828,28 +1065,23 @@
                     // Show selected page
                     const pageId = this.getAttribute('data-page');
                     document.getElementById(pageId).classList.add('active');
+                    
+                    // Render appropriate data
+                    if (pageId === 'recipe-database') {
+                        renderRecipes();
+                    } else if (pageId === 'ingredients-manager') {
+                        renderIngredientsList();
+                    }
                 });
             });
         }
         
         function setupEventListeners() {
-            // Recipe view buttons
-            document.querySelectorAll('.action-btn .fa-eye').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // In a real app, this would load actual recipe data
-                    document.getElementById('modal-recipe-title').textContent = 'Vegetable Lasagna';
-                    document.getElementById('modal-recipe-category').textContent = 'Dinner';
-                    document.getElementById('modal-recipe-prep').textContent = '30 min';
-                    document.getElementById('modal-recipe-cook').textContent = '45 min';
-                    document.getElementById('modal-recipe-servings').textContent = '6';
-                    document.getElementById('modal-recipe-total').textContent = '75 min';
-                    document.getElementById('modal-recipe-created').textContent = 'June 22, 2025';
-                    document.getElementById('modal-recipe-description').textContent = 'A delicious vegetarian lasagna filled with fresh vegetables and creamy ricotta cheese.';
-                    
-                    // Show the modal
-                    document.getElementById('recipe-detail-modal').style.display = 'flex';
-                });
-            });
+            // Save recipe button
+            document.getElementById('save-recipe-btn').addEventListener('click', saveRecipe);
+            
+            // Save ingredient button
+            document.getElementById('save-ingredient-btn').addEventListener('click', saveIngredient);
             
             // Close modal buttons
             document.querySelectorAll('.close-modal').forEach(btn => {
@@ -873,16 +1105,192 @@
                 });
             });
             
-            // Save recipe button
-            document.getElementById('save-recipe-btn').addEventListener('click', function() {
-                const recipeName = document.getElementById('recipe-name').value;
-                if (!recipeName) {
-                    alert('Please enter a recipe name');
-                    return;
-                }
-                
-                // In a real app, this would save to a database
-                alert(`Recipe "${recipeName}" saved successfully!`);
+            // Add ingredient to recipe
+            document.getElementById('add-ingredient-to-recipe-btn').addEventListener('click', addIngredientToRecipe);
+            
+            // Add instruction to recipe
+            document.getElementById('add-instruction-btn').addEventListener('click', addInstructionToRecipe);
+        }
+        
+        function saveRecipe() {
+            const name = document.getElementById('recipe-name').value;
+            if (!name) {
+                alert('Please enter a recipe name');
+                return;
+            }
+            
+            const category = document.getElementById('recipe-category').value;
+            const description = document.getElementById('recipe-description').value;
+            const prepTime = parseInt(document.getElementById('prep-time').value) || 0;
+            const cookTime = parseInt(document.getElementById('cook-time').value) || 0;
+            const servings = parseInt(document.getElementById('servings').value) || 1;
+            
+            // Create new recipe
+            const newRecipe = {
+                id: nextRecipeId++,
+                name,
+                category,
+                description,
+                prepTime,
+                cookTime,
+                servings,
+                ingredients: [...recipeIngredients],
+                instructions: [...recipeInstructions],
+                created: new Date().toISOString().split('T')[0] // YYYY-MM-DD
+            };
+            
+            // Add to recipes array
+            recipes.push(newRecipe);
+            
+            // Clear form
+            document.getElementById('recipe-name').value = '';
+            document.getElementById('recipe-category').value = '';
+            document.getElementById('recipe-description').value = '';
+            document.getElementById('prep-time').value = '';
+            document.getElementById('cook-time').value = '';
+            document.getElementById('servings').value = '';
+            recipeIngredients = [];
+            recipeInstructions = [];
+            renderRecipeIngredients();
+            renderRecipeInstructions();
+            
+            alert(`Recipe "${name}" saved successfully!`);
+        }
+        
+        function saveIngredient() {
+            const name = document.getElementById('ingredient-name').value;
+            if (!name) {
+                alert('Please enter an ingredient name');
+                return;
+            }
+            
+            const category = document.getElementById('ingredient-category').value;
+            
+            // Create new ingredient
+            const newIngredient = {
+                id: ingredients.length + 1,
+                name,
+                category,
+                allergens: [],
+                packageType: '',
+                packageWeight: '',
+                packageCost: 0,
+                calories: 0,
+                protein: 0,
+                carbs: 0,
+                fat: 0,
+                fiber: 0,
+                sugar: 0
+            };
+            
+            // Add to ingredients array
+            ingredients.push(newIngredient);
+            
+            // Clear form
+            document.getElementById('ingredient-name').value = '';
+            document.getElementById('ingredient-category').value = '';
+            
+            // Update display
+            renderIngredientsList();
+            
+            alert(`Ingredient "${name}" saved successfully!`);
+        }
+        
+        function addIngredientToRecipe() {
+            if (ingredients.length === 0) return;
+            
+            // Simple implementation: add the first ingredient
+            const ingredient = ingredients[0];
+            recipeIngredients.push({
+                id: ingredient.id,
+                name: ingredient.name,
+                quantity: 1,
+                unit: 'pieces'
+            });
+            
+            renderRecipeIngredients();
+        }
+        
+        function addInstructionToRecipe() {
+            recipeInstructions.push(`Step ${recipeInstructions.length + 1}: Your instruction here`);
+            renderRecipeInstructions();
+        }
+        
+        function renderRecipeIngredients() {
+            const tbody = document.getElementById('recipe-ingredients-list');
+            tbody.innerHTML = '';
+            
+            recipeIngredients.forEach((ing, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${ing.name}</td>
+                    <td>${ing.quantity}</td>
+                    <td>${ing.unit}</td>
+                    <td>$0.00</td>
+                    <td>None</td>
+                    <td class="action-btns">
+                        <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function renderRecipeInstructions() {
+            const container = document.getElementById('recipe-instructions-list');
+            container.innerHTML = '';
+            
+            recipeInstructions.forEach((inst, index) => {
+                const div = document.createElement('div');
+                div.className = 'form-group';
+                div.innerHTML = `
+                    <textarea rows="2" class="w-full p-3 border border-gray-300 rounded-lg">${inst}</textarea>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        function renderIngredientsList() {
+            const tbody = document.getElementById('ingredients-list');
+            tbody.innerHTML = '';
+            
+            ingredients.forEach(ing => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${ing.name}</td>
+                    <td>${ing.category}</td>
+                    <td>${ing.allergens.join(', ') || 'None'}</td>
+                    <td>${ing.packageWeight} ${ing.packageType}</td>
+                    <td>$${ing.packageCost.toFixed(2)}</td>
+                    <td class="action-btns">
+                        <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function renderRecipes() {
+            const tbody = document.getElementById('recipes-list');
+            tbody.innerHTML = '';
+            
+            recipes.forEach(recipe => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${recipe.name}</td>
+                    <td>${recipe.category}</td>
+                    <td>${recipe.prepTime} min</td>
+                    <td>${recipe.cookTime} min</td>
+                    <td>${recipe.servings}</td>
+                    <td class="action-btns">
+                        <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                        <button class="action-btn view"><i class="fas fa-eye"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
             });
         }
     </script>
