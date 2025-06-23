@@ -1,436 +1,988 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Recipe Builder</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-  <style>
-    @media print {
-      .no-print { display: none !important; }
-      body { background: white; }
-    }
-    .hidden { display: none; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Builder with Ingredients Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #f97316;
+            --primary-dark: #ea580c;
+            --secondary: #0ea5e9;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f1f5f9;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .logo i {
+            font-size: 2.2rem;
+        }
+        
+        nav {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .nav-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .page {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+            padding: 25px;
+            min-height: calc(100vh - 200px);
+        }
+        
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #0284c7;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+        }
+        
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        tr:hover {
+            background-color: #f8fafc;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .badge-success {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .badge-warning {
+            background-color: #fef3c7;
+            color: #854d0e;
+        }
+        
+        .badge-danger {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        
+        .badge-info {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+        }
+        
+        .action-btn.edit {
+            color: var(--secondary);
+        }
+        
+        .action-btn.delete {
+            color: var(--danger);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+            margin-top: 40px;
+            font-size: 0.9rem;
+        }
+        
+        .ingredient-details {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .nutrition-facts {
+            flex: 1;
+            background: #fff7ed;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .nutrition-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        
+        .allergens {
+            margin-top: 20px;
+        }
+        
+        .allergen-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .allergen-tag {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .suppliers-section {
+            margin-top: 20px;
+        }
+        
+        .supplier-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .conversions {
+            flex: 1;
+            background: #eff6ff;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .conversion-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+        
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #cbd5e1;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-cols-2, .grid-cols-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            nav {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .ingredient-details {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 p-6">
-  <div class="max-w-6xl mx-auto">
-    <h1 class="text-3xl font-bold text-orange-600 mb-6">Recipe Builder</h1>
-
-    <!-- Recipe Form -->
-    <div class="bg-white rounded-lg shadow p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">Recipe Details</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-          <input id="recipeName" type="text" placeholder="Recipe Name" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <span>RecipeMaster Pro</span>
+            </div>
+            <nav>
+                <button class="nav-btn active" data-page="recipe-builder">
+                    <i class="fas fa-book"></i> Recipe Builder
+                </button>
+                <button class="nav-btn" data-page="ingredients-manager">
+                    <i class="fas fa-carrot"></i> Ingredients Manager
+                </button>
+            </nav>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-          <textarea id="description" rows="2" placeholder="Recipe Description" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"></textarea>
+    </header>
+    
+    <div class="container">
+        <!-- Recipe Builder Page -->
+        <div id="recipe-builder" class="page active">
+            <h2><i class="fas fa-book me-2"></i>Recipe Builder</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Create New Recipe</h3>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Recipe
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-2">
+                    <div class="form-group">
+                        <label for="recipe-name">Recipe Name</label>
+                        <input type="text" id="recipe-name" placeholder="e.g., Vegetable Lasagna">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="recipe-category">Category</label>
+                        <select id="recipe-category">
+                            <option value="">Select Category</option>
+                            <option value="breakfast">Breakfast</option>
+                            <option value="lunch">Lunch</option>
+                            <option value="dinner">Dinner</option>
+                            <option value="dessert">Dessert</option>
+                            <option value="snack">Snack</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="recipe-description">Description</label>
+                    <textarea id="recipe-description" rows="3" placeholder="Describe your recipe..."></textarea>
+                </div>
+                
+                <div class="grid grid-cols-3">
+                    <div class="form-group">
+                        <label for="prep-time">Prep Time (min)</label>
+                        <input type="number" id="prep-time" placeholder="e.g., 20">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cook-time">Cook Time (min)</label>
+                        <input type="number" id="cook-time" placeholder="e.g., 30">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="servings">Servings</label>
+                        <input type="number" id="servings" placeholder="e.g., 4">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Ingredients</h3>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-plus me-2"></i>Add Ingredient
+                    </button>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ingredient</th>
+                            <th>Quantity</th>
+                            <th>Unit</th>
+                            <th>Cost</th>
+                            <th>Allergens</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Tomatoes</td>
+                            <td>4</td>
+                            <td>pieces</td>
+                            <td>$1.20</td>
+                            <td><span class="badge badge-success">None</span></td>
+                            <td class="action-btns">
+                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Whole Wheat Flour</td>
+                            <td>2</td>
+                            <td>cups</td>
+                            <td>$0.90</td>
+                            <td><span class="badge badge-warning">Gluten</span></td>
+                            <td class="action-btns">
+                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Mozzarella Cheese</td>
+                            <td>200</td>
+                            <td>grams</td>
+                            <td>$2.50</td>
+                            <td><span class="badge badge-danger">Dairy</span></td>
+                            <td class="action-btns">
+                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Instructions</h3>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-plus me-2"></i>Add Step
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <textarea id="instructions" rows="5" placeholder="Enter step-by-step instructions..."></textarea>
+                </div>
+            </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Servings</label>
-          <input id="servings" type="number" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent" value="4">
+        
+        <!-- Ingredients Manager Page -->
+        <div id="ingredients-manager" class="page">
+            <h2><i class="fas fa-carrot me-2"></i>Ingredients Management</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Add New Ingredient</h3>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Ingredient
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-2">
+                    <div class="form-group">
+                        <label for="ingredient-name">Ingredient Name</label>
+                        <input type="text" id="ingredient-name" placeholder="e.g., Organic Whole Wheat Flour">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ingredient-category">Category</label>
+                        <select id="ingredient-category">
+                            <option value="">Select Category</option>
+                            <option value="produce">Produce</option>
+                            <option value="dairy">Dairy</option>
+                            <option value="meat">Meat & Poultry</option>
+                            <option value="pantry">Pantry</option>
+                            <option value="spices">Spices & Herbs</option>
+                            <option value="baking">Baking</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active" data-tab="nutrition">Nutrition</div>
+                    <div class="tab" data-tab="allergens">Allergens</div>
+                    <div class="tab" data-tab="packaging">Packaging</div>
+                    <div class="tab" data-tab="suppliers">Suppliers</div>
+                    <div class="tab" data-tab="conversions">Conversions</div>
+                </div>
+                
+                <div class="tab-content active" id="nutrition-tab">
+                    <div class="grid grid-cols-3">
+                        <div class="form-group">
+                            <label for="calories">Calories (per 100g)</label>
+                            <input type="number" id="calories" placeholder="e.g., 340">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="protein">Protein (g)</label>
+                            <input type="number" id="protein" placeholder="e.g., 13">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="carbs">Carbohydrates (g)</label>
+                            <input type="number" id="carbs" placeholder="e.g., 72">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fat">Fat (g)</label>
+                            <input type="number" id="fat" placeholder="e.g., 2.5">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fiber">Fiber (g)</label>
+                            <input type="number" id="fiber" placeholder="e.g., 10">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="sugar">Sugar (g)</label>
+                            <input type="number" id="sugar" placeholder="e.g., 0.4">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="allergens-tab">
+                    <div class="form-group">
+                        <label>Common Allergens</label>
+                        <div class="grid grid-cols-3">
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Gluten
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Dairy
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Eggs
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Soy
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Peanuts
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Tree Nuts
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Fish
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox"> Shellfish
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="other-allergens">Other Allergens (comma separated)</label>
+                        <input type="text" id="other-allergens" placeholder="e.g., Sesame, Mustard">
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="packaging-tab">
+                    <div class="grid grid-cols-2">
+                        <div class="form-group">
+                            <label for="package-type">Package Type</label>
+                            <select id="package-type">
+                                <option value="">Select Package Type</option>
+                                <option value="bag">Bag</option>
+                                <option value="box">Box</option>
+                                <option value="jar">Jar</option>
+                                <option value="bottle">Bottle</option>
+                                <option value="can">Can</option>
+                                <option value="bulk">Bulk</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="package-weight">Package Weight/Volume</label>
+                            <input type="text" id="package-weight" placeholder="e.g., 1kg, 500ml">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2">
+                        <div class="form-group">
+                            <label for="units-per-package">Units per Package</label>
+                            <input type="number" id="units-per-package" placeholder="e.g., 1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="package-cost">Package Cost ($)</label>
+                            <input type="number" step="0.01" id="package-cost" placeholder="e.g., 5.99">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="suppliers-tab">
+                    <div class="form-group">
+                        <label for="supplier-name">Supplier Name</label>
+                        <input type="text" id="supplier-name" placeholder="e.g., Organic Farms Co.">
+                    </div>
+                    
+                    <div class="grid grid-cols-2">
+                        <div class="form-group">
+                            <label for="supplier-contact">Contact Person</label>
+                            <input type="text" id="supplier-contact" placeholder="e.g., John Smith">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="supplier-phone">Phone</label>
+                            <input type="tel" id="supplier-phone" placeholder="e.g., (555) 123-4567">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="supplier-email">Email</label>
+                        <input type="email" id="supplier-email" placeholder="e.g., contact@organicfarms.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="supplier-notes">Notes</label>
+                        <textarea id="supplier-notes" rows="2" placeholder="Any special notes about this supplier..."></textarea>
+                    </div>
+                    
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-plus me-2"></i>Add Another Supplier
+                    </button>
+                </div>
+                
+                <div class="tab-content" id="conversions-tab">
+                    <div class="form-group">
+                        <label for="base-unit">Base Unit</label>
+                        <select id="base-unit">
+                            <option value="grams">Grams (g)</option>
+                            <option value="milliliters">Milliliters (ml)</option>
+                            <option value="pieces">Pieces</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Common Conversions</label>
+                        <div class="grid grid-cols-3">
+                            <div>
+                                <label>Cups</label>
+                                <input type="number" step="0.01" placeholder="e.g., 0.25">
+                            </div>
+                            <div>
+                                <label>Tablespoons</label>
+                                <input type="number" step="0.01" placeholder="e.g., 4">
+                            </div>
+                            <div>
+                                <label>Teaspoons</label>
+                                <input type="number" step="0.01" placeholder="e.g., 12">
+                            </div>
+                            <div>
+                                <label>Ounces</label>
+                                <input type="number" step="0.01" placeholder="e.g., 3.5">
+                            </div>
+                            <div>
+                                <label>Pounds</label>
+                                <input type="number" step="0.01" placeholder="e.g., 0.22">
+                            </div>
+                            <div>
+                                <label>Liters</label>
+                                <input type="number" step="0.01" placeholder="e.g., 0.5">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="custom-conversion">Add Custom Conversion</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <input type="text" placeholder="Unit name" class="col-span-1">
+                            <input type="number" step="0.01" placeholder="Value" class="col-span-1">
+                            <button class="btn btn-secondary col-span-1">
+                                <i class="fas fa-plus me-2"></i>Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Ingredients Database</h3>
+                    <div>
+                        <input type="text" placeholder="Search ingredients..." style="padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                    </div>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ingredient</th>
+                            <th>Category</th>
+                            <th>Allergens</th>
+                            <th>Package</th>
+                            <th>Cost</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Organic Whole Wheat Flour</td>
+                            <td>Baking</td>
+                            <td><span class="badge badge-warning">Gluten</span></td>
+                            <td>5kg bag</td>
+                            <td>$12.99</td>
+                            <td class="action-btns">
+                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Organic Tomatoes</td>
+                            <td>Produce</td>
+                            <td><span class="badge badge-success">None</span></td>
+                            <td>1kg box</td>
+                            <td>$4.50</td>
+                            <td class="action-btns">
+                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Fresh Mozzarella</td>
+                            <td>Dairy</td>
+                            <td><span class="badge badge-danger">Dairy</span></td>
+                            <td>200g pack</td>
+                            <td>$3.25</td>
+                            <td class="action-btns">
+                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Extra Virgin Olive Oil</td>
+                            <td>Pantry</td>
+                            <td><span class="badge badge-success">None</span></td>
+                            <td>500ml bottle</td>
+                            <td>$8.99</td>
+                            <td class="action-btns">
+                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Organic Basil</td>
+                            <td>Spices & Herbs</td>
+                            <td><span class="badge badge-success">None</span></td>
+                            <td>30g package</td>
+                            <td>$2.49</td>
+                            <td class="action-btns">
+                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Prep Time (min)</label>
-          <input id="prepTime" type="number" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent" value="15">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Cook Time (min)</label>
-          <input id="cookTime" type="number" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent" value="30">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-          <div class="flex gap-2">
-            <input id="tagInput" type="text" placeholder="Add a tag" class="flex-1 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-            <button id="addTagBtn" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">Add</button>
-          </div>
-          <div id="tagsContainer" class="flex flex-wrap gap-2 mt-2"></div>
-        </div>
-      </div>
     </div>
-
-    <!-- Ingredients -->
-    <div class="bg-white rounded-lg shadow p-6 mb-6">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold">Ingredients</h2>
-        <button id="addIngredientBtn" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">Add Ingredient</button>
-      </div>
-      <div id="ingredientsList"></div>
-    </div>
-
-    <!-- Instructions -->
-    <div class="bg-white rounded-lg shadow p-6 mb-6">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold">Instructions</h2>
-        <button id="addInstructionBtn" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">Add Instruction</button>
-      </div>
-      <div id="instructionsList"></div>
-    </div>
-
-    <!-- Scaling -->
-    <div class="bg-white rounded-lg shadow p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">Scale Recipe</h2>
-      <div class="flex items-center gap-4">
-        <button id="decreaseScale" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded">-</button>
-        <span id="scaleDisplay" class="font-medium">1.00x</span>
-        <button id="increaseScale" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded">+</button>
-        <span id="scaledServings" class="ml-4">4 servings</span>
-      </div>
-    </div>
-
-    <!-- Summary -->
-    <div id="recipeSummary" class="bg-white rounded-lg shadow p-6 mb-6 hidden">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold">Recipe Summary</h2>
-        <button id="printBtn" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded no-print">Print</button>
-      </div>
-      <h3 id="summaryTitle" class="text-2xl font-bold mb-2"></h3>
-      <div id="summaryDescription" class="mb-4"></div>
-      <div id="summaryTags" class="mb-4 hidden">
-        <h4 class="text-lg font-semibold mb-2">Tags</h4>
-        <div id="summaryTagsList" class="flex flex-wrap gap-1"></div>
-      </div>
-      <div id="summaryServings" class="mb-2"></div>
-      <div id="summaryTime" class="mb-4"></div>
-      <div id="summaryIngredients" class="mb-4 hidden">
-        <h4 class="text-lg font-semibold mb-2">Ingredients</h4>
-        <ul id="summaryIngredientsList" class="list-disc pl-5"></ul>
-      </div>
-      <div id="summaryInstructions" class="hidden">
-        <h4 class="text-lg font-semibold mb-2">Instructions</h4>
-        <ol id="summaryInstructionsList" class="list-decimal pl-5"></ol>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Global state
-    let recipe = {
-      name: '',
-      description: '',
-      servings: 4,
-      prepTime: 15,
-      cookTime: 30,
-      ingredients: [],
-      instructions: [''],
-      tags: []
-    };
-    let scaleFactor = 1;
-    let ingredientCounter = 0;
-
-    const units = ['cups', 'tablespoons', 'teaspoons', 'ounces', 'pounds', 'grams', 'kilograms', 'milliliters', 'liters', 'pieces', 'cloves'];
-
-    // Debounce helper
-    function debounce(func, delay) {
-      let timeout;
-      return function() {
-        const context = this;
-        const args = arguments;
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(context, args), delay);
-      };
-    }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
-      addInitialIngredients();
-      addInitialInstruction();
-      setupEventListeners();
-      // Event delegation for ingredient removal
-      document.getElementById('ingredientsList').addEventListener('click', function(e) {
-        const btn = e.target.closest('button[data-id]');
-        if (btn) {
-          const id = parseInt(btn.getAttribute('data-id'));
-          removeIngredient(id);
-        }
-      });
-      // Event delegation for instruction removal
-      document.getElementById('instructionsList').addEventListener('click', function(e) {
-        const btn = e.target.closest('button[data-index]');
-        if (btn) {
-          const index = parseInt(btn.getAttribute('data-index'));
-          removeInstruction(index);
-        }
-      });
-    });
-
-    function setupEventListeners() {
-      // Recipe name
-      document.getElementById('recipeName').addEventListener('input', debounce(function(e) {
-        recipe.name = e.target.value;
-        updateSummary();
-      }, 300));
-
-      // Servings, prep, cook time
-      document.getElementById('servings').addEventListener('input', debounce(function(e) {
-        recipe.servings = parseInt(e.target.value) || 0;
-        updateSummary();
-      }, 300));
-
-      document.getElementById('prepTime').addEventListener('input', debounce(function(e) {
-        recipe.prepTime = parseInt(e.target.value) || 0;
-        updateSummary();
-      }, 300));
-
-      document.getElementById('cookTime').addEventListener('input', debounce(function(e) {
-        recipe.cookTime = parseInt(e.target.value) || 0;
-        updateSummary();
-      }, 300));
-
-      // Description
-      document.getElementById('description').addEventListener('input', debounce(function(e) {
-        recipe.description = e.target.value;
-        updateSummary();
-      }, 300));
-
-      // Tags
-      document.getElementById('addTagBtn').addEventListener('click', addTag);
-      document.getElementById('tagInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          addTag();
-          e.preventDefault();
-        }
-      });
-
-      // Scaling
-      document.getElementById('decreaseScale').addEventListener('click', function() {
-        scaleFactor = Math.max(0.25, scaleFactor - 0.25);
-        updateScaleDisplay();
-      });
-      document.getElementById('increaseScale').addEventListener('click', function() {
-        scaleFactor += 0.25;
-        updateScaleDisplay();
-      });
-
-      // Ingredients and Instructions
-      document.getElementById('addIngredientBtn').addEventListener('click', addIngredient);
-      document.getElementById('addInstructionBtn').addEventListener('click', addInstruction);
-
-      // Print
-      document.getElementById('printBtn').addEventListener('click', function() {
-        window.print();
-      });
-    }
-
-    function addInitialIngredients() {
-      for (let i = 0; i < 3; i++) {
-        addIngredient();
-      }
-    }
-
-    function addInitialInstruction() {
-      addInstruction();
-    }
-
-    function addTag() {
-      const input = document.getElementById('tagInput');
-      const tag = input.value.trim();
-      if (tag && !recipe.tags.includes(tag)) {
-        recipe.tags.push(tag);
-        input.value = '';
-        updateTagsDisplay();
-        updateSummary();
-      }
-    }
-
-    function removeTag(tag) {
-      recipe.tags = recipe.tags.filter(t => t !== tag);
-      updateTagsDisplay();
-      updateSummary();
-    }
-
-    function updateTagsDisplay() {
-      const container = document.getElementById('tagsContainer');
-      container.innerHTML = recipe.tags.map(tag => `
-        <span class="flex items-center bg-orange-100 text-orange-800 text-sm px-3 py-1 rounded-full">
-          ${tag}
-          <button onclick="removeTag('${tag}')" class="ml-2 text-orange-600 hover:text-orange-900">×</button>
-        </span>
-      `).join('');
-    }
-
-    function addIngredient() {
-      ingredientCounter++;
-      const ingredient = {
-        id: ingredientCounter,
-        name: '',
-        amount: '',
-        preparation: '',
-        unit: 'cups'
-      };
-      recipe.ingredients.push(ingredient);
-
-      const container = document.getElementById('ingredientsList');
-      const ingredientDiv = document.createElement('div');
-      ingredientDiv.className = 'grid grid-cols-12 gap-3 p-3 bg-white border border-gray-200 rounded-lg items-start mb-3';
-      ingredientDiv.id = `ingredient-${ingredient.id}`;
-
-      ingredientDiv.innerHTML = `
-        <div class="col-span-4">
-          <input type="text" placeholder="Enter ingredient..."
-                 class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                 onchange="updateIngredient(${ingredient.id}, 'name', this.value)">
-        </div>
-        <div class="col-span-2">
-          <input type="number" step="0.01" placeholder="0"
-                 class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                 onchange="updateIngredient(${ingredient.id}, 'amount', this.value)">
-          <div class="text-xs text-gray-500 mt-1 scaled-amount" style="display: none;">
-            Scaled: <strong></strong>
-          </div>
-        </div>
-        <div class="col-span-3">
-          <input type="text" placeholder="diced, chopped, etc."
-                 class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                 onchange="updateIngredient(${ingredient.id}, 'preparation', this.value)">
-        </div>
-        <div class="col-span-2">
-          <select class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  onchange="updateIngredient(${ingredient.id}, 'unit', this.value)">
-            ${units.map(unit => `<option value="${unit}">${unit}</option>`).join('')}
-          </select>
-        </div>
-        <div class="col-span-1">
-          <button data-id="${ingredient.id}" class="text-red-500 hover:text-red-700 text-xs flex items-center gap-1 justify-center">
-            × Remove
-          </button>
-        </div>
-      `;
-      container.appendChild(ingredientDiv);
-    }
-
-    function removeIngredient(id) {
-      recipe.ingredients = recipe.ingredients.filter(ing => ing.id !== id);
-      document.getElementById(`ingredient-${id}`)?.remove();
-      updateSummary();
-    }
-
-    function updateIngredient(id, field, value) {
-      const ingredient = recipe.ingredients.find(ing => ing.id === id);
-      if (ingredient) {
-        ingredient[field] = value;
-        if (field === 'amount' && value) {
-          const scaledAmountDiv = document.querySelector(`#ingredient-${id} .scaled-amount`);
-          const scaledValue = parseFloat(value) * scaleFactor;
-          scaledAmountDiv.querySelector('strong').textContent = parseFloat(scaledValue.toFixed(2));
-          scaledAmountDiv.style.display = 'block';
-        } else if (field === 'amount' && !value) {
-          const scaledAmountDiv = document.querySelector(`#ingredient-${id} .scaled-amount`);
-          scaledAmountDiv.style.display = 'none';
-        }
-        updateSummary();
-      }
-    }
-
-    function addInstruction() {
-      const index = recipe.instructions.length;
-      recipe.instructions.push('');
-
-      const container = document.getElementById('instructionsList');
-      const instructionDiv = document.createElement('div');
-      instructionDiv.className = 'flex gap-3 items-start mb-3';
-      instructionDiv.id = `instruction-${index}`;
-
-      instructionDiv.innerHTML = `
-        <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
-          ${index + 1}
-        </div>
-        <div class="flex-1 flex gap-2">
-          <textarea rows="2" placeholder="Enter instruction step..."
-                    class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    onchange="updateInstruction(${index}, this.value)"></textarea>
-          ${recipe.instructions.length > 1 ? 
-            `<button data-index="${index}" class="text-red-500 hover:text-red-700 p-1">×</button>` : 
-            ''
-          }
-        </div>
-      `;
-      container.appendChild(instructionDiv);
-    }
-
-    function removeInstruction(index) {
-      if (recipe.instructions.length > 1) {
-        recipe.instructions.splice(index, 1);
-        document.getElementById(`instruction-${index}`)?.remove();
-        // Update numbering for remaining instructions
-        const container = document.getElementById('instructionsList');
-        const instructions = container.children;
-        for (let i = 0; i < instructions.length; i++) {
-          const numberDiv = instructions[i].querySelector('.w-8');
-          numberDiv.textContent = i + 1;
-          instructions[i].id = `instruction-${i}`;
-        }
-        updateSummary();
-      }
-    }
-
-    function updateInstruction(index, value) {
-      recipe.instructions[index] = value;
-      updateSummary();
-    }
-
-    function updateScaleDisplay() {
-      document.getElementById('scaleDisplay').textContent = scaleFactor.toFixed(2) + 'x';
-      document.getElementById('scaledServings').innerHTML = `<strong>${Math.round(recipe.servings * scaleFactor)}</strong> servings`;
-      recipe.ingredients.forEach(ing => {
-        if (ing.amount) {
-          const scaledAmountDiv = document.querySelector(`#ingredient-${ing.id} .scaled-amount`);
-          if (scaledAmountDiv) {
-            const scaledValue = parseFloat(ing.amount) * scaleFactor;
-            scaledAmountDiv.querySelector('strong').textContent = parseFloat(scaledValue.toFixed(2));
-          }
-        }
-      });
-      updateSummary();
-    }
-
-    function updateSummary() {
-      const summary = document.getElementById('recipeSummary');
-      const printBtn = document.getElementById('printBtn');
-      if (recipe.name) {
-        summary.classList.remove('hidden');
-        printBtn.classList.remove('hidden');
-        document.getElementById('summaryTitle').textContent = recipe.name;
-        const descDiv = document.getElementById('summaryDescription');
-        descDiv.textContent = recipe.description;
-        descDiv.classList.toggle('hidden', !recipe.description);
-        const tagsDiv = document.getElementById('summaryTags');
-        if (recipe.tags.length > 0) {
-          document.getElementById('summaryTagsList').innerHTML = recipe.tags.map(tag => 
-            `<span class="inline-block bg-orange-200 text-orange-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">${tag}</span>`
-          ).join('');
-          tagsDiv.classList.remove('hidden');
-        } else {
-          tagsDiv.classList.add('hidden');
-        }
-        document.getElementById('summaryServings').innerHTML = `<strong>${Math.round(recipe.servings * scaleFactor)}</strong> servings`;
-        document.getElementById('summaryTime').innerHTML = `<strong>${recipe.prepTime + recipe.cookTime}</strong> min total`;
-        const validIngredients = recipe.ingredients.filter(ing => ing.name && ing.amount);
-        const ingredientsDiv = document.getElementById('summaryIngredients');
-        if (validIngredients.length > 0) {
-          document.getElementById('summaryIngredientsList').innerHTML = validIngredients.map(ing => {
-            const scaledAmount = parseFloat(ing.amount) * scaleFactor;
-            return `<li><strong>${parseFloat(scaledAmount.toFixed(2))}</strong> ${ing.unit} <strong>${ing.name}</strong> ${ing.preparation ? `(${ing.preparation})` : ''}</li>`;
-          }).join('');
-          ingredientsDiv.classList.remove('hidden');
-        } else {
-          ingredientsDiv.classList.add('hidden');
-        }
-        const validInstructions = recipe.instructions.filter(inst => inst.trim() !== '');
-        const instructionsDiv = document.getElementById('summaryInstructions');
-        if (validInstructions.length > 0) {
-          document.getElementById('summaryInstructionsList').innerHTML = validInstructions.map(inst => `<li>${inst}</li>`).join('');
-          instructionsDiv.classList.remove('hidden');
-        } else {
-          instructionsDiv.classList.add('hidden');
-        }
-      } else {
-        summary.classList.add('hidden');
-        printBtn.classList.add('hidden');
-      }
-    }
-  </script>
+    
+    <footer>
+        <p>RecipeMaster Pro &copy; 2023 - All rights reserved</p>
+        <p>Millbrae, California, United States</p>
+    </footer>
+    
+    <script>
+        // Page navigation
+        document.querySelectorAll('.nav-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Hide all pages
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                // Show selected page
+                const pageId = this.getAttribute('data-page');
+                document.getElementById(pageId).classList.add('active');
+            });
+        });
+        
+        // Tab navigation
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Show selected tab content
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+        
+        // Sample data for demonstration
+        const ingredients = [
+            {
+                name: "Organic Whole Wheat Flour",
+                category: "Baking",
+                allergens: ["Gluten"],
+                package: "5kg bag",
+                cost: 12.99
+            },
+            {
+                name: "Organic Tomatoes",
+                category: "Produce",
+                allergens: [],
+                package: "1kg box",
+                cost: 4.50
+            },
+            {
+                name: "Fresh Mozzarella",
+                category: "Dairy",
+                allergens: ["Dairy"],
+                package: "200g pack",
+                cost: 3.25
+            }
+        ];
+    </script>
 </body>
 </html>
