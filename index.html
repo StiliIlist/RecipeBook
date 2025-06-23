@@ -1,506 +1,436 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recipe Builder</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @media print {
-            .print-hide {
-                display: none !important;
-            }
-            .print-show {
-                display: block !important;
-            }
-            body {
-                margin: 0;
-                padding: 20px;
-            }
-            .recipe-summary {
-                page-break-inside: avoid;
-            }
-        }
-        .hidden {
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Recipe Builder</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; }
+    }
+    .hidden { display: none; }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen py-6">
-    <div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-        <div class="mb-8 flex justify-between items-center print-hide">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-                👨‍🍳 Recipe Builder
-            </h1>
-            <button id="printBtn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 flex items-center gap-2 hidden">
-                🖨️ Print to PDF
-            </button>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold text-orange-600 mb-6">Recipe Builder</h1>
+
+    <!-- Recipe Form -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Recipe Details</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <input id="recipeName" type="text" placeholder="Recipe Name" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent">
         </div>
-        <p class="text-gray-600 mb-6 print-hide">Create detailed recipes with scaling and allergen tracking</p>
-
-        <!-- Recipe Header -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 print-hide">
-            <div>
-                <label for="recipeName" class="block text-sm font-medium text-gray-700 mb-2">Recipe Name</label>
-                <input id="recipeName" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Enter recipe name...">
-            </div>
-
-            <div class="grid grid-cols-3 gap-3">
-                <div>
-                    <label for="servings" class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
-                        👥 Servings
-                    </label>
-                    <input id="servings" type="number" value="4" min="1" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="prepTime" class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
-                        ⏰ Prep (min)
-                    </label>
-                    <input id="prepTime" type="number" value="15" min="0" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="cookTime" class="block text-sm font-medium text-gray-700 mb-2">Cook (min)</label>
-                    <input id="cookTime" type="number" value="30" min="0" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                </div>
-            </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea id="description" rows="2" placeholder="Recipe Description" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"></textarea>
         </div>
-
-        <!-- Description -->
-        <div class="mb-8 print-hide">
-            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-            <textarea id="description" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Describe your recipe..."></textarea>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Servings</label>
+          <input id="servings" type="number" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent" value="4">
         </div>
-
-        <!-- Tags Section -->
-        <div class="mb-8 print-hide">
-            <h3 class="text-xl font-semibold text-gray-800 mb-4">Tags</h3>
-            <div id="tagsContainer" class="flex flex-wrap gap-2 mb-3"></div>
-            <div class="flex gap-2">
-                <input id="tagInput" type="text" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Add a tag (e.g., Vegetarian, Dinner)">
-                <button id="addTagBtn" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">Add Tag</button>
-            </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Prep Time (min)</label>
+          <input id="prepTime" type="number" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent" value="15">
         </div>
-
-        <!-- Scaling Controls -->
-        <div class="mb-8 p-4 bg-orange-50 rounded-lg print-hide">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-semibold text-gray-800">Recipe Scaling</h3>
-                <div class="flex items-center gap-3">
-                    <button id="decreaseScale" class="p-1 bg-orange-500 text-white rounded hover:bg-orange-600">−</button>
-                    <span id="scaleDisplay" class="text-lg font-medium">1.00x</span>
-                    <button id="increaseScale" class="p-1 bg-orange-500 text-white rounded hover:bg-orange-600">+</button>
-                </div>
-            </div>
-            <p class="text-sm text-gray-600">
-                Scaled for <strong id="scaledServings">4 servings</strong>
-            </p>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Cook Time (min)</label>
+          <input id="cookTime" type="number" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent" value="30">
         </div>
-
-        <!-- Ingredients Section -->
-        <div class="mb-8 print-hide">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-gray-800">Ingredients</h3>
-                <button id="addIngredientBtn" class="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 flex items-center gap-1">
-                    + Add Ingredient
-                </button>
-            </div>
-
-            <!-- Ingredient Headers -->
-            <div class="grid grid-cols-12 gap-3 mb-3 p-3 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">
-                <div class="col-span-4">Ingredient Name</div>
-                <div class="col-span-2">Amount</div>
-                <div class="col-span-3">Preparation</div>
-                <div class="col-span-2">Unit</div>
-                <div class="col-span-1">Actions</div>
-            </div>
-
-            <div id="ingredientsList" class="space-y-3">
-                <!-- Ingredients will be added here dynamically -->
-            </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+          <div class="flex gap-2">
+            <input id="tagInput" type="text" placeholder="Add a tag" class="flex-1 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+            <button id="addTagBtn" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">Add</button>
+          </div>
+          <div id="tagsContainer" class="flex flex-wrap gap-2 mt-2"></div>
         </div>
-
-        <!-- Instructions Section -->
-        <div class="mb-8 print-hide">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-gray-800">Instructions</h3>
-                <button id="addInstructionBtn" class="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 flex items-center gap-1">
-                    + Add Step
-                </button>
-            </div>
-
-            <div id="instructionsList" class="space-y-3">
-                <!-- Instructions will be added here dynamically -->
-            </div>
-        </div>
-
-        <!-- Recipe Summary -->
-        <div id="recipeSummary" class="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-lg recipe-summary print-show hidden">
-            <h3 id="summaryTitle" class="text-xl font-bold text-gray-800 mb-3"></h3>
-            <p id="summaryDescription" class="text-gray-700 mb-4 hidden"></p>
-            <div id="summaryTags" class="mb-4 hidden">
-                <span class="font-semibold text-gray-700">Tags: </span>
-                <span id="summaryTagsList"></span>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div class="flex items-center gap-2">
-                    👥 <span id="summaryServings"><strong>4</strong> servings</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    ⏰ <span id="summaryTime"><strong>45</strong> min total</span>
-                </div>
-                <div id="summaryAllergens" class="flex items-center gap-2 hidden">
-                    ⚠️ <span class="text-red-600">Contains: <strong id="allergensList"></strong></span>
-                </div>
-            </div>
-
-            <div id="summaryIngredients" class="mt-6 hidden">
-                <h4 class="text-lg font-semibold text-gray-800 mb-2">Ingredients:</h4>
-                <ul id="summaryIngredientsList" class="list-disc list-inside text-gray-700 space-y-1"></ul>
-            </div>
-
-            <div id="summaryInstructions" class="mt-6 hidden">
-                <h4 class="text-lg font-semibold text-gray-800 mb-2">Instructions:</h4>
-                <ol id="summaryInstructionsList" class="list-decimal list-inside text-gray-700 space-y-1"></ol>
-            </div>
-        </div>
+      </div>
     </div>
 
-    <script>
-        // Global state
-        let recipe = {
-            name: '',
-            description: '',
-            servings: 4,
-            prepTime: 15,
-            cookTime: 30,
-            ingredients: [],
-            instructions: [''],
-            tags: []
-        };
-        let scaleFactor = 1;
-        let ingredientCounter = 0;
+    <!-- Ingredients -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Ingredients</h2>
+        <button id="addIngredientBtn" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">Add Ingredient</button>
+      </div>
+      <div id="ingredientsList"></div>
+    </div>
 
-        const units = ['cups', 'tablespoons', 'teaspoons', 'ounces', 'pounds', 'grams', 'kilograms', 'milliliters', 'liters', 'pieces', 'cloves'];
+    <!-- Instructions -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Instructions</h2>
+        <button id="addInstructionBtn" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">Add Instruction</button>
+      </div>
+      <div id="instructionsList"></div>
+    </div>
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            addInitialIngredients();
-            addInitialInstruction();
-            setupEventListeners();
-        });
+    <!-- Scaling -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Scale Recipe</h2>
+      <div class="flex items-center gap-4">
+        <button id="decreaseScale" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded">-</button>
+        <span id="scaleDisplay" class="font-medium">1.00x</span>
+        <button id="increaseScale" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded">+</button>
+        <span id="scaledServings" class="ml-4">4 servings</span>
+      </div>
+    </div>
 
-        function setupEventListeners() {
-            // Recipe name
-            document.getElementById('recipeName').addEventListener('input', function(e) {
-                recipe.name = e.target.value;
-                updateSummary();
-            });
+    <!-- Summary -->
+    <div id="recipeSummary" class="bg-white rounded-lg shadow p-6 mb-6 hidden">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Recipe Summary</h2>
+        <button id="printBtn" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded no-print">Print</button>
+      </div>
+      <h3 id="summaryTitle" class="text-2xl font-bold mb-2"></h3>
+      <div id="summaryDescription" class="mb-4"></div>
+      <div id="summaryTags" class="mb-4 hidden">
+        <h4 class="text-lg font-semibold mb-2">Tags</h4>
+        <div id="summaryTagsList" class="flex flex-wrap gap-1"></div>
+      </div>
+      <div id="summaryServings" class="mb-2"></div>
+      <div id="summaryTime" class="mb-4"></div>
+      <div id="summaryIngredients" class="mb-4 hidden">
+        <h4 class="text-lg font-semibold mb-2">Ingredients</h4>
+        <ul id="summaryIngredientsList" class="list-disc pl-5"></ul>
+      </div>
+      <div id="summaryInstructions" class="hidden">
+        <h4 class="text-lg font-semibold mb-2">Instructions</h4>
+        <ol id="summaryInstructionsList" class="list-decimal pl-5"></ol>
+      </div>
+    </div>
+  </div>
 
-            // Servings, prep, cook time
-            document.getElementById('servings').addEventListener('input', function(e) {
-                recipe.servings = parseInt(e.target.value) || 0;
-                updateSummary();
-            });
+  <script>
+    // Global state
+    let recipe = {
+      name: '',
+      description: '',
+      servings: 4,
+      prepTime: 15,
+      cookTime: 30,
+      ingredients: [],
+      instructions: [''],
+      tags: []
+    };
+    let scaleFactor = 1;
+    let ingredientCounter = 0;
 
-            document.getElementById('prepTime').addEventListener('input', function(e) {
-                recipe.prepTime = parseInt(e.target.value) || 0;
-                updateSummary();
-            });
+    const units = ['cups', 'tablespoons', 'teaspoons', 'ounces', 'pounds', 'grams', 'kilograms', 'milliliters', 'liters', 'pieces', 'cloves'];
 
-            document.getElementById('cookTime').addEventListener('input', function(e) {
-                recipe.cookTime = parseInt(e.target.value) || 0;
-                updateSummary();
-            });
+    // Debounce helper
+    function debounce(func, delay) {
+      let timeout;
+      return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), delay);
+      };
+    }
 
-            // Description
-            document.getElementById('description').addEventListener('input', function(e) {
-                recipe.description = e.target.value;
-                updateSummary();
-            });
-
-            // Tags
-            document.getElementById('addTagBtn').addEventListener('click', addTag);
-            document.getElementById('tagInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    addTag();
-                    e.preventDefault();
-                }
-            });
-
-            // Scaling
-            document.getElementById('decreaseScale').addEventListener('click', function() {
-                scaleFactor = Math.max(0.25, scaleFactor - 0.25);
-                updateScaleDisplay();
-            });
-
-            document.getElementById('increaseScale').addEventListener('click', function() {
-                scaleFactor += 0.25;
-                updateScaleDisplay();
-            });
-
-            // Ingredients and Instructions
-            document.getElementById('addIngredientBtn').addEventListener('click', addIngredient);
-            document.getElementById('addInstructionBtn').addEventListener('click', addInstruction);
-
-            // Print
-            document.getElementById('printBtn').addEventListener('click', function() {
-                window.print();
-            });
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      addInitialIngredients();
+      addInitialInstruction();
+      setupEventListeners();
+      // Event delegation for ingredient removal
+      document.getElementById('ingredientsList').addEventListener('click', function(e) {
+        const btn = e.target.closest('button[data-id]');
+        if (btn) {
+          const id = parseInt(btn.getAttribute('data-id'));
+          removeIngredient(id);
         }
-
-        function addInitialIngredients() {
-            for (let i = 0; i < 3; i++) {
-                addIngredient();
-            }
+      });
+      // Event delegation for instruction removal
+      document.getElementById('instructionsList').addEventListener('click', function(e) {
+        const btn = e.target.closest('button[data-index]');
+        if (btn) {
+          const index = parseInt(btn.getAttribute('data-index'));
+          removeInstruction(index);
         }
+      });
+    });
 
-        function addInitialInstruction() {
-            addInstruction();
+    function setupEventListeners() {
+      // Recipe name
+      document.getElementById('recipeName').addEventListener('input', debounce(function(e) {
+        recipe.name = e.target.value;
+        updateSummary();
+      }, 300));
+
+      // Servings, prep, cook time
+      document.getElementById('servings').addEventListener('input', debounce(function(e) {
+        recipe.servings = parseInt(e.target.value) || 0;
+        updateSummary();
+      }, 300));
+
+      document.getElementById('prepTime').addEventListener('input', debounce(function(e) {
+        recipe.prepTime = parseInt(e.target.value) || 0;
+        updateSummary();
+      }, 300));
+
+      document.getElementById('cookTime').addEventListener('input', debounce(function(e) {
+        recipe.cookTime = parseInt(e.target.value) || 0;
+        updateSummary();
+      }, 300));
+
+      // Description
+      document.getElementById('description').addEventListener('input', debounce(function(e) {
+        recipe.description = e.target.value;
+        updateSummary();
+      }, 300));
+
+      // Tags
+      document.getElementById('addTagBtn').addEventListener('click', addTag);
+      document.getElementById('tagInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          addTag();
+          e.preventDefault();
         }
+      });
 
-        function addTag() {
-            const input = document.getElementById('tagInput');
-            const tag = input.value.trim();
-            if (tag && !recipe.tags.includes(tag)) {
-                recipe.tags.push(tag);
-                input.value = '';
-                updateTagsDisplay();
-                updateSummary();
-            }
+      // Scaling
+      document.getElementById('decreaseScale').addEventListener('click', function() {
+        scaleFactor = Math.max(0.25, scaleFactor - 0.25);
+        updateScaleDisplay();
+      });
+      document.getElementById('increaseScale').addEventListener('click', function() {
+        scaleFactor += 0.25;
+        updateScaleDisplay();
+      });
+
+      // Ingredients and Instructions
+      document.getElementById('addIngredientBtn').addEventListener('click', addIngredient);
+      document.getElementById('addInstructionBtn').addEventListener('click', addInstruction);
+
+      // Print
+      document.getElementById('printBtn').addEventListener('click', function() {
+        window.print();
+      });
+    }
+
+    function addInitialIngredients() {
+      for (let i = 0; i < 3; i++) {
+        addIngredient();
+      }
+    }
+
+    function addInitialInstruction() {
+      addInstruction();
+    }
+
+    function addTag() {
+      const input = document.getElementById('tagInput');
+      const tag = input.value.trim();
+      if (tag && !recipe.tags.includes(tag)) {
+        recipe.tags.push(tag);
+        input.value = '';
+        updateTagsDisplay();
+        updateSummary();
+      }
+    }
+
+    function removeTag(tag) {
+      recipe.tags = recipe.tags.filter(t => t !== tag);
+      updateTagsDisplay();
+      updateSummary();
+    }
+
+    function updateTagsDisplay() {
+      const container = document.getElementById('tagsContainer');
+      container.innerHTML = recipe.tags.map(tag => `
+        <span class="flex items-center bg-orange-100 text-orange-800 text-sm px-3 py-1 rounded-full">
+          ${tag}
+          <button onclick="removeTag('${tag}')" class="ml-2 text-orange-600 hover:text-orange-900">×</button>
+        </span>
+      `).join('');
+    }
+
+    function addIngredient() {
+      ingredientCounter++;
+      const ingredient = {
+        id: ingredientCounter,
+        name: '',
+        amount: '',
+        preparation: '',
+        unit: 'cups'
+      };
+      recipe.ingredients.push(ingredient);
+
+      const container = document.getElementById('ingredientsList');
+      const ingredientDiv = document.createElement('div');
+      ingredientDiv.className = 'grid grid-cols-12 gap-3 p-3 bg-white border border-gray-200 rounded-lg items-start mb-3';
+      ingredientDiv.id = `ingredient-${ingredient.id}`;
+
+      ingredientDiv.innerHTML = `
+        <div class="col-span-4">
+          <input type="text" placeholder="Enter ingredient..."
+                 class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                 onchange="updateIngredient(${ingredient.id}, 'name', this.value)">
+        </div>
+        <div class="col-span-2">
+          <input type="number" step="0.01" placeholder="0"
+                 class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                 onchange="updateIngredient(${ingredient.id}, 'amount', this.value)">
+          <div class="text-xs text-gray-500 mt-1 scaled-amount" style="display: none;">
+            Scaled: <strong></strong>
+          </div>
+        </div>
+        <div class="col-span-3">
+          <input type="text" placeholder="diced, chopped, etc."
+                 class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                 onchange="updateIngredient(${ingredient.id}, 'preparation', this.value)">
+        </div>
+        <div class="col-span-2">
+          <select class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  onchange="updateIngredient(${ingredient.id}, 'unit', this.value)">
+            ${units.map(unit => `<option value="${unit}">${unit}</option>`).join('')}
+          </select>
+        </div>
+        <div class="col-span-1">
+          <button data-id="${ingredient.id}" class="text-red-500 hover:text-red-700 text-xs flex items-center gap-1 justify-center">
+            × Remove
+          </button>
+        </div>
+      `;
+      container.appendChild(ingredientDiv);
+    }
+
+    function removeIngredient(id) {
+      recipe.ingredients = recipe.ingredients.filter(ing => ing.id !== id);
+      document.getElementById(`ingredient-${id}`)?.remove();
+      updateSummary();
+    }
+
+    function updateIngredient(id, field, value) {
+      const ingredient = recipe.ingredients.find(ing => ing.id === id);
+      if (ingredient) {
+        ingredient[field] = value;
+        if (field === 'amount' && value) {
+          const scaledAmountDiv = document.querySelector(`#ingredient-${id} .scaled-amount`);
+          const scaledValue = parseFloat(value) * scaleFactor;
+          scaledAmountDiv.querySelector('strong').textContent = parseFloat(scaledValue.toFixed(2));
+          scaledAmountDiv.style.display = 'block';
+        } else if (field === 'amount' && !value) {
+          const scaledAmountDiv = document.querySelector(`#ingredient-${id} .scaled-amount`);
+          scaledAmountDiv.style.display = 'none';
         }
+        updateSummary();
+      }
+    }
 
-        function removeTag(tag) {
-            recipe.tags = recipe.tags.filter(t => t !== tag);
-            updateTagsDisplay();
-            updateSummary();
+    function addInstruction() {
+      const index = recipe.instructions.length;
+      recipe.instructions.push('');
+
+      const container = document.getElementById('instructionsList');
+      const instructionDiv = document.createElement('div');
+      instructionDiv.className = 'flex gap-3 items-start mb-3';
+      instructionDiv.id = `instruction-${index}`;
+
+      instructionDiv.innerHTML = `
+        <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
+          ${index + 1}
+        </div>
+        <div class="flex-1 flex gap-2">
+          <textarea rows="2" placeholder="Enter instruction step..."
+                    class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    onchange="updateInstruction(${index}, this.value)"></textarea>
+          ${recipe.instructions.length > 1 ? 
+            `<button data-index="${index}" class="text-red-500 hover:text-red-700 p-1">×</button>` : 
+            ''
+          }
+        </div>
+      `;
+      container.appendChild(instructionDiv);
+    }
+
+    function removeInstruction(index) {
+      if (recipe.instructions.length > 1) {
+        recipe.instructions.splice(index, 1);
+        document.getElementById(`instruction-${index}`)?.remove();
+        // Update numbering for remaining instructions
+        const container = document.getElementById('instructionsList');
+        const instructions = container.children;
+        for (let i = 0; i < instructions.length; i++) {
+          const numberDiv = instructions[i].querySelector('.w-8');
+          numberDiv.textContent = i + 1;
+          instructions[i].id = `instruction-${i}`;
         }
+        updateSummary();
+      }
+    }
 
-        function updateTagsDisplay() {
-            const container = document.getElementById('tagsContainer');
-            container.innerHTML = '';
-            recipe.tags.forEach(tag => {
-                const tagElement = document.createElement('span');
-                tagElement.className = 'flex items-center bg-orange-100 text-orange-800 text-sm px-3 py-1 rounded-full';
-                tagElement.innerHTML = `
-                    ${tag}
-                    <button onclick="removeTag('${tag}')" class="ml-2 text-orange-600 hover:text-orange-900">×</button>
-                `;
-                container.appendChild(tagElement);
-            });
+    function updateInstruction(index, value) {
+      recipe.instructions[index] = value;
+      updateSummary();
+    }
+
+    function updateScaleDisplay() {
+      document.getElementById('scaleDisplay').textContent = scaleFactor.toFixed(2) + 'x';
+      document.getElementById('scaledServings').innerHTML = `<strong>${Math.round(recipe.servings * scaleFactor)}</strong> servings`;
+      recipe.ingredients.forEach(ing => {
+        if (ing.amount) {
+          const scaledAmountDiv = document.querySelector(`#ingredient-${ing.id} .scaled-amount`);
+          if (scaledAmountDiv) {
+            const scaledValue = parseFloat(ing.amount) * scaleFactor;
+            scaledAmountDiv.querySelector('strong').textContent = parseFloat(scaledValue.toFixed(2));
+          }
         }
+      });
+      updateSummary();
+    }
 
-        function addIngredient() {
-            ingredientCounter++;
-            const ingredient = {
-                id: ingredientCounter,
-                name: '',
-                amount: '',
-                preparation: '',
-                unit: 'cups'
-            };
-            recipe.ingredients.push(ingredient);
-
-            const container = document.getElementById('ingredientsList');
-            const ingredientDiv = document.createElement('div');
-            ingredientDiv.className = 'grid grid-cols-12 gap-3 p-3 bg-white border border-gray-200 rounded-lg items-start';
-            ingredientDiv.id = `ingredient-${ingredient.id}`;
-
-            ingredientDiv.innerHTML = `
-                <div class="col-span-4">
-                    <input type="text" placeholder="Enter ingredient..." 
-                           class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                           onchange="updateIngredient(${ingredient.id}, 'name', this.value)">
-                </div>
-                <div class="col-span-2">
-                    <input type="number" step="0.01" placeholder="0"
-                           class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                           onchange="updateIngredient(${ingredient.id}, 'amount', this.value)">
-                    <div class="text-xs text-gray-500 mt-1 scaled-amount" style="display: none;">
-                        Scaled: <strong></strong>
-                    </div>
-                </div>
-                <div class="col-span-3">
-                    <input type="text" placeholder="diced, chopped, etc."
-                           class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                           onchange="updateIngredient(${ingredient.id}, 'preparation', this.value)">
-                </div>
-                <div class="col-span-2">
-                    <select class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            onchange="updateIngredient(${ingredient.id}, 'unit', this.value)">
-                        ${units.map(unit => `<option value="${unit}">${unit}</option>`).join('')}
-                    </select>
-                </div>
-                <div class="col-span-1">
-                    <button onclick="removeIngredient(${ingredient.id})" 
-                            class="text-red-500 hover:text-red-700 text-xs flex items-center gap-1 justify-center">
-                        × Remove
-                    </button>
-                </div>
-            `;
-
-            container.appendChild(ingredientDiv);
+    function updateSummary() {
+      const summary = document.getElementById('recipeSummary');
+      const printBtn = document.getElementById('printBtn');
+      if (recipe.name) {
+        summary.classList.remove('hidden');
+        printBtn.classList.remove('hidden');
+        document.getElementById('summaryTitle').textContent = recipe.name;
+        const descDiv = document.getElementById('summaryDescription');
+        descDiv.textContent = recipe.description;
+        descDiv.classList.toggle('hidden', !recipe.description);
+        const tagsDiv = document.getElementById('summaryTags');
+        if (recipe.tags.length > 0) {
+          document.getElementById('summaryTagsList').innerHTML = recipe.tags.map(tag => 
+            `<span class="inline-block bg-orange-200 text-orange-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">${tag}</span>`
+          ).join('');
+          tagsDiv.classList.remove('hidden');
+        } else {
+          tagsDiv.classList.add('hidden');
         }
-
-        function removeIngredient(id) {
-            recipe.ingredients = recipe.ingredients.filter(ing => ing.id !== id);
-            document.getElementById(`ingredient-${id}`).remove();
-            updateSummary();
+        document.getElementById('summaryServings').innerHTML = `<strong>${Math.round(recipe.servings * scaleFactor)}</strong> servings`;
+        document.getElementById('summaryTime').innerHTML = `<strong>${recipe.prepTime + recipe.cookTime}</strong> min total`;
+        const validIngredients = recipe.ingredients.filter(ing => ing.name && ing.amount);
+        const ingredientsDiv = document.getElementById('summaryIngredients');
+        if (validIngredients.length > 0) {
+          document.getElementById('summaryIngredientsList').innerHTML = validIngredients.map(ing => {
+            const scaledAmount = parseFloat(ing.amount) * scaleFactor;
+            return `<li><strong>${parseFloat(scaledAmount.toFixed(2))}</strong> ${ing.unit} <strong>${ing.name}</strong> ${ing.preparation ? `(${ing.preparation})` : ''}</li>`;
+          }).join('');
+          ingredientsDiv.classList.remove('hidden');
+        } else {
+          ingredientsDiv.classList.add('hidden');
         }
-
-        function updateIngredient(id, field, value) {
-            const ingredient = recipe.ingredients.find(ing => ing.id === id);
-            if (ingredient) {
-                ingredient[field] = value;
-                
-                // Update scaled amount display
-                if (field === 'amount' && value) {
-                    const scaledAmountDiv = document.querySelector(`#ingredient-${id} .scaled-amount`);
-                    const scaledValue = parseFloat(value) * scaleFactor;
-                    scaledAmountDiv.querySelector('strong').textContent = parseFloat(scaledValue.toFixed(2));
-                    scaledAmountDiv.style.display = 'block';
-                } else if (field === 'amount' && !value) {
-                    const scaledAmountDiv = document.querySelector(`#ingredient-${id} .scaled-amount`);
-                    scaledAmountDiv.style.display = 'none';
-                }
-                
-                updateSummary();
-            }
+        const validInstructions = recipe.instructions.filter(inst => inst.trim() !== '');
+        const instructionsDiv = document.getElementById('summaryInstructions');
+        if (validInstructions.length > 0) {
+          document.getElementById('summaryInstructionsList').innerHTML = validInstructions.map(inst => `<li>${inst}</li>`).join('');
+          instructionsDiv.classList.remove('hidden');
+        } else {
+          instructionsDiv.classList.add('hidden');
         }
-
-        function addInstruction() {
-            const index = recipe.instructions.length;
-            recipe.instructions.push('');
-
-            const container = document.getElementById('instructionsList');
-            const instructionDiv = document.createElement('div');
-            instructionDiv.className = 'flex gap-3 items-start';
-            instructionDiv.id = `instruction-${index}`;
-
-            instructionDiv.innerHTML = `
-                <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                    ${index + 1}
-                </div>
-                <div class="flex-1 flex gap-2">
-                    <textarea rows="2" placeholder="Enter instruction step..."
-                              class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                              onchange="updateInstruction(${index}, this.value)"></textarea>
-                    ${recipe.instructions.length > 1 ? 
-                        `<button onclick="removeInstruction(${index})" class="text-red-500 hover:text-red-700 p-1">×</button>` : 
-                        ''
-                    }
-                </div>
-            `;
-
-            container.appendChild(instructionDiv);
-        }
-
-        function removeInstruction(index) {
-            if (recipe.instructions.length > 1) {
-                recipe.instructions.splice(index, 1);
-                document.getElementById(`instruction-${index}`).remove();
-                
-                // Update numbering for remaining instructions
-                const container = document.getElementById('instructionsList');
-                const instructions = container.children;
-                for (let i = 0; i < instructions.length; i++) {
-                    const numberDiv = instructions[i].querySelector('.w-8');
-                    numberDiv.textContent = i + 1;
-                    instructions[i].id = `instruction-${i}`;
-                }
-                
-                updateSummary();
-            }
-        }
-
-        function updateInstruction(index, value) {
-            recipe.instructions[index] = value;
-            updateSummary();
-        }
-
-        function updateScaleDisplay() {
-            document.getElementById('scaleDisplay').textContent = scaleFactor.toFixed(2) + 'x';
-            document.getElementById('scaledServings').innerHTML = `<strong>${Math.round(recipe.servings * scaleFactor)}</strong> servings`;
-            
-            // Update all scaled amounts
-            recipe.ingredients.forEach(ing => {
-                if (ing.amount) {
-                    const scaledAmountDiv = document.querySelector(`#ingredient-${ing.id} .scaled-amount`);
-                    if (scaledAmountDiv) {
-                        const scaledValue = parseFloat(ing.amount) * scaleFactor;
-                        scaledAmountDiv.querySelector('strong').textContent = parseFloat(scaledValue.toFixed(2));
-                    }
-                }
-            });
-            
-            updateSummary();
-        }
-
-        function updateSummary() {
-            const summary = document.getElementById('recipeSummary');
-            const printBtn = document.getElementById('printBtn');
-            
-            if (recipe.name) {
-                summary.classList.remove('hidden');
-                printBtn.classList.remove('hidden');
-                
-                // Update title
-                document.getElementById('summaryTitle').textContent = recipe.name;
-                
-                // Update description
-                const descDiv = document.getElementById('summaryDescription');
-                if (recipe.description) {
-                    descDiv.textContent = recipe.description;
-                    descDiv.classList.remove('hidden');
-                } else {
-                    descDiv.classList.add('hidden');
-                }
-                
-                // Update tags
-                const tagsDiv = document.getElementById('summaryTags');
-                if (recipe.tags.length > 0) {
-                    const tagsList = document.getElementById('summaryTagsList');
-                    tagsList.innerHTML = recipe.tags.map(tag => 
-                        `<span class="inline-block bg-orange-200 text-orange-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">${tag}</span>`
-                    ).join('');
-                    tagsDiv.classList.remove('hidden');
-                } else {
-                    tagsDiv.classList.add('hidden');
-                }
-                
-                // Update servings and time
-                document.getElementById('summaryServings').innerHTML = `<strong>${Math.round(recipe.servings * scaleFactor)}</strong> servings`;
-                document.getElementById('summaryTime').innerHTML = `<strong>${recipe.prepTime + recipe.cookTime}</strong> min total`;
-                
-                // Update ingredients
-                const validIngredients = recipe.ingredients.filter(ing => ing.name && ing.amount);
-                const ingredientsDiv = document.getElementById('summaryIngredients');
-                if (validIngredients.length > 0) {
-                    const ingredientsList = document.getElementById('summaryIngredientsList');
-                    ingredientsList.innerHTML = validIngredients.map(ing => {
-                        const scaledAmount = parseFloat(ing.amount) * scaleFactor;
-                        return `<li><strong>${parseFloat(scaledAmount.toFixed(2))}</strong> ${ing.unit} <strong>${ing.name}</strong> ${ing.preparation ? `(${ing.preparation})` : ''}</li>`;
-                    }).join('');
-                    ingredientsDiv.classList.remove('hidden');
-                } else {
-                    ingredientsDiv.classList.add('hidden');
-                }
-                
-                // Update instructions
-                const validInstructions = recipe.instructions.filter(inst => inst.trim() !== '');
-                const instructionsDiv = document.getElementById('summaryInstructions');
-                if (validInstructions.length > 0) {
-                    const instructionsList = document.getElementById('summaryInstructionsList');
-                    instructionsList.innerHTML = validInstructions.map(inst => `<li>${inst}</li>`).join('');
-                    instructionsDiv.classList.remove('hidden');
-                } else {
-                    instructionsDiv.classList.add('hidden');
-                }
-            } else {
-                summary.classList.add('hidden');
-                printBtn.classList.add('hidden');
-            }
-        }
-    </script>
+      } else {
+        summary.classList.add('hidden');
+        printBtn.classList.add('hidden');
+      }
+    }
+  </script>
 </body>
 </html>
